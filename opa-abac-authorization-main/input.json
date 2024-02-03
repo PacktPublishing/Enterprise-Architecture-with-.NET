@@ -1,0 +1,8 @@
+{
+    "input": {
+        "user": "mnfra",
+        "operation": "all",
+        "resource": "books.content",
+        "book": "978-2409002205"
+    }
+}

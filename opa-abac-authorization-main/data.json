@@ -1,0 +1,44 @@
+{
+    "roles": {
+        "book-direction": { "access": []},
+        "book-sales": { "parent": "book-direction", "access": [{ "operation": "all", "type": "books.sales" }]},
+        "book-edition": { "parent": "book-direction", "access": [{ "operation": "all", "type": "books.editing" }]},
+        "book-writer": { "parent": "book-edition", "access": [{ "operation": "read", "type": "books.editing" }, { "operation": "all", "type": "books.content" }]}
+    },
+    "books": {
+        "978-2409002205": { "id": "978-2409002205", "title": "Performance in .NET", "editing": { "author": "00024", "status": "published" }},
+        "978-0000123456": { "id": "978-0000123456", "title": ".NET 8 and Blazor", "editing": { "author": "00025", "status": "draft" }}
+    },
+    "authors": {
+        "00024": { "id": "00024", "firstName": "Jean-Philippe", "lastName": "Gouigoux", "user": "jpgou", "restriction": "none" },
+        "00025": { "id": "00025", "firstName": "Nicolas", "lastName": "Couseur", "user": "nicou" },
+        "jpgou": { "id": "", "firstName": "FOR DEBUG ONLY - TO BE REMOVED QUICKLY"}
+    },
+    "org_chart": {
+        "frfra": {
+            "frvel": {},
+            "cemol": {},
+            "mnfra": {
+                "00024": {},
+                "00025": {}
+            }
+        }
+    },
+    "directory": {
+        "frfra": {"groups": ["board"]},
+        "frvel": {"groups": ["commerce", "marketing"]},
+        "cemol": {"groups": ["commerce"]},
+        "mnfra": {"groups": ["editors", "quality"]},
+        "jpgou": {"groups": ["authors"]},
+        "nicou": {"groups": ["authors"]}
+    },
+    "group_mappings": {
+        "board": { "roles": ["book-direction"] },
+        "commerce": { "roles": ["book-sales"] },
+        "editors": { "roles": ["book-edition"] },
+        "authors": { "roles": ["book-writer"] }
+    },
+    "user_mappings": {
+        "frvel": { "roles": ["book-edition"] }
+    }
+}
