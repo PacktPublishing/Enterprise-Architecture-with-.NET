@@ -1,19 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
 
 var statuses = new[]
@@ -22,23 +16,23 @@ var statuses = new[]
 };
 
 var books =  Enumerable.Range(1, 3).Select(index =>
-    new Book
-    (
-        index.ToString(),
-        "978-2-409-03806-" + index.ToString(),
-        Random.Shared.Next(400, 850),
-        DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-        new EditingPetal
-        (
-            Random.Shared.Next(5, 30),
-            statuses[Random.Shared.Next(statuses.Length)]
-        ),
-        new SalesPetal
-        (
-            new decimal(Random.Shared.Next(1000, 10000) / 100),
-            new decimal(Random.Shared.Next(200, 3500))
-        )
-    ))
+    new Book()
+    {
+        BusinessId = index.ToString(),
+        ISBN = "978-2-409-03806-" + index.ToString(),
+        NumberOfPages = Random.Shared.Next(400, 850),
+        PublishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+        Editing = new EditingPetal()
+        {
+            NumberOfChapters = Random.Shared.Next(5, 30),
+            Status = new Status() { Value = statuses[Random.Shared.Next(statuses.Length)]}
+        },
+        Sales = new SalesPetal()
+        {
+            Price = new decimal(Random.Shared.Next(1000, 10000) / 100),
+            Weight = new decimal(Random.Shared.Next(200, 3500))
+        }
+    })
     .ToArray();
 
 app.MapGet("/books", () =>
@@ -55,12 +49,3 @@ app.MapGet("/books/{id}", (string id) => {
 .WithOpenApi();
 
 app.Run();
-
-record Book(string BusinessId, string? ISBN, int? NumberOfPages, DateOnly? PublishDate, EditingPetal? EditingProps, SalesPetal SalesProps)
-{}
-
-record EditingPetal(int? NumberOfChapters, string? Status)
-{}
-
-record SalesPetal(decimal? price, decimal? weight)
-{}
