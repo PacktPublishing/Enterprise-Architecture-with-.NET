@@ -9,6 +9,7 @@ services:
     environment:
       - ME_CONFIG_BASICAUTH_USERNAME=forster
       - ME_CONFIG_BASICAUTH_PASSWORD=gOU89tRF05
+      - ME_CONFIG_MONGODB_SERVER=db
   iam:
     image: quay.io/keycloak/keycloak:23.0.7
     ports:
@@ -42,7 +43,7 @@ services:
       context: ./authors-controller
       dockerfile: Dockerfile
     ports:
-      - 81:8080
+      - 82:8080
     restart: unless-stopped
     healthcheck:
       test: curl http://localhost:8080/status
