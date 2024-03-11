@@ -3,16 +3,18 @@ using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using System.Net;
 using Polly;
 using Polly.Extensions.Http;
+using Microsoft.AspNetCore.Authentication;
+using books_controller;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
     options.Authority = "http://localhost:8080/realms/demoeditor/";
     options.Audience = "account";
     options.RequireHttpsMetadata = false;
 }).AddCookie();
+
+builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 
 builder.Services.AddAuthorization(o =>
 {

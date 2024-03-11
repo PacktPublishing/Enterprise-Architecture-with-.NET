@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json.Serialization;
 using books_controller.Tools;
 using Microsoft.AspNetCore.Authorization;
+using FastExcel;
 
 namespace books_controller.Controllers;
 
@@ -27,6 +28,62 @@ public class BooksController : ControllerBase
         _clientFactory = clientFactory;
         ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://localhost:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
+    }
+
+    [Authorize(Roles = "director")]
+    [HttpPut]
+    [Route("Import")]
+    public async Task<IActionResult> ImportBooksCatalog([FromQuery] string? localFileAddress = "/tmp/DemoEditor-BooksCatalog.xlsx")
+    {
+        if (!System.IO.File.Exists(localFileAddress))
+            return new NotFoundObjectResult(string.Format("Could not find books catalog at {0}", localFileAddress));
+
+        // When in migration period, we simply remove everything from the database before each call
+        await Database.GetCollection<ChangeUnit>("books-changes").DeleteManyAsync(item => true);
+        await Database.GetCollection<ObjectState<Book>>("books-states").DeleteManyAsync(item => true);
+        await Database.GetCollection<Book>("books-bestsofar").DeleteManyAsync(item => true);
+
+        using (FastExcel.FastExcel excelReader = new FastExcel.FastExcel(new FileInfo(localFileAddress), true))
+        {
+            Worksheet worksheet = excelReader.Read("Books");
+            var rows = worksheet.Rows.ToArray();
+            for (int i = 1; i < rows.Length; i++)
+            {
+                var cells = rows[i].Cells.ToArray();
+                Book b = new Book() {
+                    EntityId = i.ToString().PadLeft(4, '0'),
+                    ISBN = (string)cells[0].Value,
+                    Title = (string)cells[1].Value
+                };
+
+                HttpClient client = _clientFactory.CreateClient("Authors");
+                try
+                {
+                    // We try to retrieve authors by their full name; if it does not work, business people will tell if it is better to improve the algorithm with a "close enough" match or if the volume does not justify it and they will simply correct the mismatched author names in the initial books catalog
+                    Author? author = await client.GetFromJsonAsync<Author>("?$filter=Title eq '" + (string)cells[2].Value + "'");
+                    if (author != null) 
+                    {
+                        // URLs are hardcoded in order to better explain what is done by the code
+                        b.Editing = new EditingPetal() {
+                            mainAuthor = new AuthorLink() {
+                                Rel = "dc.creator",
+                                Href = "http://demoeditor.org/authors/" + author.EntityId,
+                                Title = author.FirstName + " " + author.LastName,
+                            }
+                        };
+                    }
+                }
+                catch
+                {
+                    _logger.LogInformation("Could not find author {title} using the full name", (string)cells[2].Value);
+                }
+
+                // It has been decided by the business owners that the data migrated from the old books catalog should appear in the new referential as if it had been created at the beginning of 2024
+                DateTimeOffset valueDateForMigratedData = new DateTimeOffset(2024, 1, 1, 0, 0, 0, new TimeSpan(1, 0, 0));
+                await this.Create(b, valueDateForMigratedData);
+            }
+            return new OkObjectResult(string.Format("{0} lines have been imported", rows.Length));
+        }
     }
 
     [AllowAnonymous]
@@ -171,13 +228,20 @@ public class BooksController : ControllerBase
             new DefaultContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() }
         );
 
-        // Registering to author changes
-        HttpClient? client = null;
-        if (book.Editing != null && book.Editing.mainAuthor != null)
+        // Registering to author changes, but if it does not work, it is not such a problem owing to eventual consistency
+        try
         {
-            if (client is null)
-                client = _clientFactory.CreateClient("AuthorsWebhook");
-            await client.PutAsync("?callbackURL=http://demoeditor.org/books/authorscache&$filter=href eq '" + book.Editing.mainAuthor.Href + "'", null);
+            HttpClient? client = null;
+            if (book.Editing != null && book.Editing.mainAuthor != null)
+            {
+                if (client is null)
+                    client = _clientFactory.CreateClient("AuthorsWebhook");
+                await client.PutAsync("?callbackURL=http://demoeditor.org/books/authorscache&$filter=href eq '" + book.Editing.mainAuthor.Href + "'", null);
+            }
+        }
+        catch
+        {
+            _logger.LogError("Could not subscribe to webhook for author changes when creating book {BookId}", book.EntityId);
         }
 
         // After creating the equivalent patch, we thus pass this over to the PATCH operation
