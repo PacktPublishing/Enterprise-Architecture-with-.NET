@@ -1,0 +1,22 @@
+@page "/identity"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Identity</PageTitle>
+
+@* Reference: https://code-maze.com/blazor-webassembly-role-based-security-with-identityserver4/ *@
+<h3>Identity of the connected user</h3>
+
+<AuthorizeView>
+    <h2>
+        Hello @context?.User?.Identity?.Name,
+        here's the list of your claims:
+    </h2>
+    <ul>
+        @if (context?.User?.Claims != null)
+        foreach (var claim in context.User.Claims)
+        {
+            <li><b>@claim.Type</b>: @claim.Value</li>
+        }
+    </ul>
+</AuthorizeView>

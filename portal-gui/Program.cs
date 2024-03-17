@@ -18,7 +18,10 @@ public class Program
             builder.Configuration.Bind("Local", options.ProviderOptions);
             // options.ProviderOptions.Authority = "http://localhost:8080/realms/demoeditor/";
             // options.ProviderOptions.ClientId = "Portal";
+            options.UserOptions.RoleClaim = "realm_access.roles";
         });
+
+        builder.Services.AddApiAuthorization().AddAccountClaimsPrincipalFactory<RolesClaimsPrincipalFactory>();
 
         await builder.Build().RunAsync();
     }
