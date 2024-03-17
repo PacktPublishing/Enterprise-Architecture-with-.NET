@@ -14,7 +14,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     options.RequireHttpsMetadata = false;
 }).AddCookie();
 
-builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
+builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>(); // TODO : should normally not be useful anymore once passed to realm-level roles
 
 builder.Services.AddAuthorization(o =>
 {

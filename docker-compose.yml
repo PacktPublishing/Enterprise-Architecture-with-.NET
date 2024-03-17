@@ -2,6 +2,8 @@ version: '3.0'
 services:
   db:
     image: mongo:4.4
+    networks:
+      - back
   dbgui:
     image: mongo-express:1.0.2
     ports:
@@ -10,6 +12,8 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=forster
       - ME_CONFIG_BASICAUTH_PASSWORD=gOU89tRF05
       - ME_CONFIG_MONGODB_SERVER=db
+    networks:
+      - back
   iam:
     image: quay.io/keycloak/keycloak:23.0.7
     ports:
@@ -18,11 +22,16 @@ services:
       - KEYCLOAK_ADMIN=forster
       - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
     command: start-dev
+    networks:
+      - front
+      - back
   mom:
     image: rabbitmq:3.13-management
     ports:
       - 15672:15672
       - 5672:5672
+    networks:
+      - back
   books:
     image: demoeditor/books-api:0.1
     build:
@@ -37,6 +46,9 @@ services:
       retries: 3
       start_period: 5s
       timeout: 1s
+    networks:
+      - front
+      - back
   authors:
     image: demoeditor/authors-api:0.1
     build:
@@ -51,6 +63,9 @@ services:
       retries: 3
       start_period: 5s
       timeout: 1s
+    networks:
+      - front
+      - back
   portal:
     image: demoeditor/portal-gui:0.1
     build:
@@ -59,9 +74,8 @@ services:
     ports:
       - 80:8080
     restart: unless-stopped
-    healthcheck:
-      test: curl http://localhost:8080/status
-      interval: 10s
-      retries: 3
-      start_period: 5s
-      timeout: 1s
+    networks:
+      - front
+networks:
+  front:
+  back:
