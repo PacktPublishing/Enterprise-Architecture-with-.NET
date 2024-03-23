@@ -5,6 +5,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Microsoft.AspNetCore.Authentication;
 using books_controller;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 }).AddCookie();
 
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>(); // TODO : should normally not be useful anymore once passed to realm-level roles
+builder.Services.AddSingleton<IAuthorizationHandler, EditorAuthorizationHandler>();
 
 builder.Services.AddAuthorization(o =>
 {
     o.AddPolicy("author", policy => policy.RequireClaim("user_roles", "author"));
-    o.AddPolicy("editor", policy => policy.RequireClaim("user_roles", "editor"));
+    o.AddPolicy("editor", policy => policy.Requirements.Add(new EditorRequirement()));
+    o.AddPolicy("director", policy => policy.RequireClaim("user_roles", "director"));
 });
 
 builder.Services.AddControllers().AddNewtonsoftJson();

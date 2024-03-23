@@ -9,30 +9,30 @@ namespace books_controller
     /// </summary>
     public class ClaimsTransformer : IClaimsTransformation
     {
-        private string PrefixeRoleClaim { get; init; }
-        private string OIDCClientId { get; init; }
-        private string SuffixeRoleClaim { get; init; }
-        private string TargetUserRolesClaimName { get; init; }
+        //private string PrefixeRoleClaim { get; init; }
+        //private string OIDCClientId { get; init; }
+        //private string SuffixeRoleClaim { get; init; }
+        //private string TargetUserRolesClaimName { get; init; }
 
-        public ClaimsTransformer(IConfiguration config)
-        {
-            string ModelePourRoleClaim = "resource_access.BooksAPI.roles";
-            PrefixeRoleClaim = ModelePourRoleClaim.Substring(0, ModelePourRoleClaim.IndexOf("."));
-            SuffixeRoleClaim = ModelePourRoleClaim.Substring(ModelePourRoleClaim.LastIndexOf(".") + 1);
-            OIDCClientId = "BooksAPI";
-            TargetUserRolesClaimName = "user_roles";
-        }
+        // public ClaimsTransformer(IConfiguration config)
+        // {
+        //     //string ModelePourRoleClaim = "resource_access.BooksAPI.roles";
+        //     //PrefixeRoleClaim = ModelePourRoleClaim.Substring(0, ModelePourRoleClaim.IndexOf("."));
+        //     //SuffixeRoleClaim = ModelePourRoleClaim.Substring(ModelePourRoleClaim.LastIndexOf(".") + 1);
+        //     //OIDCClientId = "BooksAPI";
+        //     //TargetUserRolesClaimName = "user_roles";
+        // }
 
         public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             ClaimsIdentity claimsIdentity = (ClaimsIdentity)principal.Identity;
             if (claimsIdentity.IsAuthenticated)
             {
-                foreach (var c in claimsIdentity.Clone().FindAll((claim) => claim.Type == PrefixeRoleClaim))
+                foreach (var c in claimsIdentity.Clone().FindAll((claim) => claim.Type == "realm_access"))
                 {
-                    JsonDocument doc = JsonDocument.Parse(c.Value);
-                    foreach (JsonElement elem in doc.RootElement.GetProperty(OIDCClientId).GetProperty(SuffixeRoleClaim).EnumerateArray())
-                        claimsIdentity.AddClaim(new Claim(this.TargetUserRolesClaimName, elem.GetString() ?? String.Empty));
+                    JsonElement elem = JsonDocument.Parse(c.Value).RootElement;
+                    foreach (JsonElement role in elem.GetProperty("roles").EnumerateArray())
+                        claimsIdentity.AddClaim(new Claim("user_roles", role.GetString() ?? String.Empty));
                 }
             }
             return Task.FromResult(principal);

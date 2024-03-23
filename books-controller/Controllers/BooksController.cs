@@ -30,7 +30,7 @@ public class BooksController : ControllerBase
         Database = new MongoClient(ConnectionString).GetDatabase("books");
     }
 
-    [Authorize(Roles = "director")]
+    [Authorize(Policy = "director")]
     [HttpPut]
     [Route("Import")]
     public async Task<IActionResult> ImportBooksCatalog([FromQuery] string? localFileAddress = "/tmp/DemoEditor-BooksCatalog.xlsx")
