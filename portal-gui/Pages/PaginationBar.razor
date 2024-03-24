@@ -1,0 +1,72 @@
+@using Microsoft.AspNetCore.Components;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        @foreach (var link in _links)
+        {
+            <li @onclick="() => OnSelectedPage(link)" style="cursor: pointer;" class="page-item @(link.Enabled ? null : "disabled") @(link.Active ? "active" : null)">
+                <span class="page-link" href="#">@link.Text</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code
+{
+    public class PagingLink
+    {
+        public string Text { get; set; }
+        public int Page { get; set; }
+        public bool Enabled { get; set; }
+        public bool Active { get; set; }
+        public PagingLink(int page, bool enabled, string text)
+        {
+            Page = page;
+            Enabled = enabled;
+            Text = text;
+        }
+    }
+    
+    [Parameter]
+    public int CurrentPage { get; set; }
+    [Parameter]
+    public int TotalPages { get; set; }
+    [Parameter]
+    public int PageSize { get; set; }
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    public bool HasPrevious => CurrentPage > 1;
+    public bool HasNext => CurrentPage < TotalPages;
+
+    [Parameter]
+    public int Spread { get; set; }
+    [Parameter]
+    public EventCallback<int> SelectedPage { get; set; }
+
+    private List<PagingLink> _links;
+
+    protected override void OnParametersSet()
+    {
+        _links = new List<PagingLink>();
+        _links.Add(new PagingLink(1, true, "<<"));
+        _links.Add(new PagingLink(CurrentPage - 1, HasPrevious, "<"));
+        for (int i = 1; i <= TotalPages; i++)
+            if (i >= CurrentPage - Spread && i <= CurrentPage + Spread)
+                _links.Add(new PagingLink(i, true, i.ToString()) { Active = CurrentPage == i });
+        _links.Add(new PagingLink(CurrentPage + 1, HasNext, ">"));
+        _links.Add(new PagingLink(TotalPages, true, ">>"));
+        base.OnParametersSet();
+    }
+
+    private async Task OnSelectedPage(PagingLink link)
+    {
+        if (link.Page == CurrentPage || !link.Enabled) return;
+        CurrentPage = link.Page;
+        await SelectedPage.InvokeAsync(link.Page);
+    }
+}

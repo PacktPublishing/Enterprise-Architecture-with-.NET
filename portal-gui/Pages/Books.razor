@@ -15,6 +15,7 @@
 }
 else
 {
+    <p>Total number of books: @(TotalNumberOfBooks.HasValue ? TotalNumberOfBooks : "N/A")</p>
     <table class="table">
         <thead>
             <tr>
@@ -48,14 +49,46 @@ else
             }
         </tbody>
     </table>
+    <div class="row">
+        <div class="col">
+            <PaginationBar 
+                CurrentPage="CurrentPage"
+                TotalPages="TotalPages"
+                TotalCount="(int)TotalNumberOfBooks"
+                PageSize="PageSize"
+                Spread="2"
+                SelectedPage="SelectedPage" />
+        </div>
+    </div>
 }
 
 @code {
+    private int? TotalNumberOfBooks = null;
+    private int CurrentPage = 1;
+    private int TotalPages = 1;
+    private int PageSize = 5;
+
     private Book[]? books;
 
     protected override async Task OnInitializedAsync()
     {
-        books = await Http.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books");
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://localhost:5298/Books/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
+
+        books = await Http.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books?$top=" + PageSize);
+    }
+
+    protected async Task SelectedPage(int page)
+    {
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://localhost:5298/Books/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
+
+        CurrentPage = page;
+        int top = PageSize;
+        int skip = PageSize * (page - 1);
+        books = await Http.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books?$top=" + top + "&$skip=" + skip);
+
+        InvokeAsync(StateHasChanged);
     }
 
     public class Book
