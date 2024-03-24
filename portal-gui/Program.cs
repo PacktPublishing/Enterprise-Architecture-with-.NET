@@ -13,13 +13,7 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
-        builder.Services
-            .AddHttpClient("BooksAPI", client => client.BaseAddress = new Uri("http://localhost:5298"))
-            .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
-        builder.Services.AddHttpClient("NeedsNoAccessToken", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
-        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("BooksAPI"));
-        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("NeedsNoAccessToken"));
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5298") });
 
         builder.Services.AddOidcAuthentication(options =>
         {

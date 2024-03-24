@@ -1,9 +1,7 @@
-﻿@page "/bookslist"
+﻿@page "/books"
 @attribute [Authorize(Roles = "editor")]
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@inject IHttpClientFactory HttpFactory
-@* @inject HttpClient Http *@
+@inject HttpClient Http
 
 <PageTitle>Books</PageTitle>
 
@@ -57,15 +55,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            var client = HttpFactory.CreateClient("BooksAPI");
-            books = await client.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books");
-        }
-        catch (AccessTokenNotAvailableException exception)
-        {
-            exception.Redirect();
-        }
+        books = await Http.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books");
     }
 
     public class Book
