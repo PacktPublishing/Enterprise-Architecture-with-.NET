@@ -21,7 +21,11 @@ namespace portal_gui
                 string Contenu = resourceaccess.First().Value;
                 JsonElement elem = JsonDocument.Parse(Contenu).RootElement;
                 foreach (JsonElement role in elem.GetProperty("roles").EnumerateArray())
+                {
                     identity.AddClaim(new Claim(options.RoleClaim, role.GetString() ?? String.Empty));
+                    if (role.GetString() == "director")
+                        identity.AddClaim(new Claim(options.RoleClaim, "editor"));
+                }
             }
             return user;
         }

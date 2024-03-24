@@ -32,6 +32,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient("AuthorsWebhook", client => client.BaseAddress = new Uri("http://demoeditor.org/authors/Subscribe"));
 builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://demoeditor.org/authors")).AddPolicyHandler(GetRetryPolicy());
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,6 +42,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//if (app.Environment.IsDevelopment())
+app.UseCors(options => options.WithOrigins("http://localhost:5233").AllowAnyMethod().AllowAnyHeader().SetPreflightMaxAge(TimeSpan.FromSeconds(1000)));
 
 app.UseHttpsRedirection();
 

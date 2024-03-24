@@ -1,0 +1,126 @@
+﻿@page "/bookslist"
+@attribute [Authorize(Roles = "editor")]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject IHttpClientFactory HttpFactory
+@* @inject HttpClient Http *@
+
+<PageTitle>Books</PageTitle>
+
+<h1>Books</h1>
+
+<p>This component shows the list of books retrieved from the API</p>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Pages</th>
+                <th>Published</th>
+                <th>Chapters</th>
+                <th>Status</th>
+                <th>Author</th>
+                <th>Price</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.EntityId</td>
+                    <td>@book.ISBN</td>
+                    <td>@book.Title</td>
+                    <td>@book.NumberOfPages</td>
+                    <td>@book.PublishDate?.ToString("MM/yyyy")</td>
+                    <td>@book.Editing?.NumberOfChapters</td>
+                    <td>@book.Editing?.Status?.Value</td>
+                    <td><a href='/books/@book.Editing?.mainAuthor?.Id'>@book.Editing?.mainAuthor?.Title</a></td>
+                    <td>@book.Sales?.Price?.Value @book.Sales?.Price?.MonetaryUnit </td>
+                    <td>@book.Sales?.WeightInGrams gr</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Book[]? books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var client = HttpFactory.CreateClient("BooksAPI");
+            books = await client.GetFromJsonAsync<Book[]>(@"http://localhost:5298/Books");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    public class Book
+    {
+        public string EntityId { get; set; }
+        public string? ISBN { get; set; }
+        public string? Title { get; set; }
+        public int? NumberOfPages { get; set; }
+        public DateTime? PublishDate { get; set; }
+        public EditingPetal? Editing { get; set; }
+        public SalesPetal Sales { get; set; }
+    }
+    
+    public class EditingPetal
+    {
+        public int? NumberOfChapters { get; set; }
+        public Status? Status { get; set; }
+        public AuthorLink? mainAuthor { get; set; }
+    }
+
+    public class AuthorLink : Link
+    {
+        public string UserEmailAddress { get; set; }
+        //public Author? FullEntity { get; set; }
+    }
+
+    public class Link
+    {
+        public string Rel { get; set; }
+        public string Href { get; set; }
+        public string Title { get; set; }
+        public string Id
+        {
+            get
+            {
+                int pos = Href.LastIndexOf("/");
+                return Href.Substring(pos + 1);
+            }
+        }
+    }
+
+    public class Status
+    {
+        public string Value { get; set; }
+    }
+
+    public class SalesPetal
+    {
+        public MonetaryAmount? Price { get; set; }
+        public decimal? WeightInGrams { get; set; }
+    }
+
+    public class MonetaryAmount
+    {
+        public decimal Value { get; set; }
+        public string MonetaryUnit { get; set; }
+    }
+}
