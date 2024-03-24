@@ -5,9 +5,7 @@
 
 <PageTitle>Books</PageTitle>
 
-<h1>Books</h1>
-
-<p>This component shows the list of books retrieved from the API</p>
+<h1>Books (total number of @(TotalNumberOfBooks.HasValue ? TotalNumberOfBooks : "N/A"))</h1>
 
 @if (books == null)
 {
@@ -15,40 +13,25 @@
 }
 else
 {
-    <p>Total number of books: @(TotalNumberOfBooks.HasValue ? TotalNumberOfBooks : "N/A")</p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>ISBN</th>
-                <th>Title</th>
-                <th>Pages</th>
-                <th>Published</th>
-                <th>Chapters</th>
-                <th>Status</th>
-                <th>Author</th>
-                <th>Price</th>
-                <th>Weight</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var book in books)
-            {
-                <tr>
-                    <td>@book.EntityId</td>
-                    <td>@book.ISBN</td>
-                    <td>@book.Title</td>
-                    <td>@book.NumberOfPages</td>
-                    <td>@book.PublishDate?.ToString("MM/yyyy")</td>
-                    <td>@book.Editing?.NumberOfChapters</td>
-                    <td>@book.Editing?.Status?.Value</td>
-                    <td><a href='/books/@book.Editing?.mainAuthor?.Id'>@book.Editing?.mainAuthor?.Title</a></td>
-                    <td>@book.Sales?.Price?.Value @book.Sales?.Price?.MonetaryUnit </td>
-                    <td>@book.Sales?.WeightInGrams gr</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="container">
+    @foreach (var book in books)
+    {
+        <div class="row">
+            <div class="col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@book.ISBN (@book.EntityId)</h6>
+                        <p class="card-text">Published @book.PublishDate?.ToString("MM/yyyy")</p>
+                        <p class="card-text">@book.NumberOfPages pages / @book.Editing?.NumberOfChapters chapters</p>
+                        <a href="/books/@book.Editing?.mainAuthor?.Id'" class="card-link">@book.Editing?.mainAuthor?.Title</a>
+                    </div>
+                </div>        
+            </div>        
+        </div>        
+    }
+    </div>
+
     <div class="row">
         <div class="col">
             <PaginationBar 
