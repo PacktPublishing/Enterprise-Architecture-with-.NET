@@ -9,7 +9,7 @@ using FastExcel;
 
 namespace books_controller.Controllers;
 
-//[Authorize]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class BooksController : ControllerBase
@@ -98,7 +98,7 @@ public class BooksController : ControllerBase
             return StatusCode(500);
     }
 
-    //[Authorize(Policy = "editor")]
+    [Authorize(Policy = "editor")]
     [HttpGet]
     public IActionResult Get(
         [FromQuery(Name = "$orderby")] string orderby = "",

@@ -1,0 +1,128 @@
+﻿@page "/books"
+@inject HttpClient Http
+
+<h1>Books (total number of @(TotalNumberOfBooks.HasValue ? TotalNumberOfBooks : "N/A"))</h1>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+    @foreach (var book in books)
+    {
+        <div class="row">
+            <div class="col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@book.ISBN (@book.EntityId)</h6>
+                        <p class="card-text">Published @book.PublishDate?.ToString("MM/yyyy")</p>
+                        <p class="card-text">@book.NumberOfPages pages / @book.Editing?.NumberOfChapters chapters</p>
+                        <a href="/books/@book.Editing?.mainAuthor?.Id'" class="card-link">@book.Editing?.mainAuthor?.Title</a>
+                    </div>
+                </div>        
+            </div>        
+        </div>        
+    }
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <PaginationBar 
+                CurrentPage="CurrentPage"
+                TotalPages="TotalPages"
+                TotalCount="(int)TotalNumberOfBooks"
+                PageSize="PageSize"
+                Spread="2"
+                SelectedPage="SelectedPage" />
+        </div>
+    </div>
+}
+
+@code {
+    private int? TotalNumberOfBooks = null;
+    private int CurrentPage = 1;
+    private int TotalPages = 1;
+    private int PageSize = 5;
+
+    private Book[]? books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://98.66.160.199/Books/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
+
+        books = await Http.GetFromJsonAsync<Book[]>(@"http://98.66.160.199/Books?$top=" + PageSize);
+    }
+
+    protected async Task SelectedPage(int page)
+    {
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://98.66.160.199/Books/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
+
+        CurrentPage = page;
+        int top = PageSize;
+        int skip = PageSize * (page - 1);
+        books = await Http.GetFromJsonAsync<Book[]>(@"http://98.66.160.199/Books?$top=" + top + "&$skip=" + skip);
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    public class Book
+    {
+        public string EntityId { get; set; }
+        public string? ISBN { get; set; }
+        public string? Title { get; set; }
+        public int? NumberOfPages { get; set; }
+        public DateTime? PublishDate { get; set; }
+        public EditingPetal? Editing { get; set; }
+        public SalesPetal Sales { get; set; }
+    }
+    
+    public class EditingPetal
+    {
+        public int? NumberOfChapters { get; set; }
+        public Status? Status { get; set; }
+        public AuthorLink? mainAuthor { get; set; }
+    }
+
+    public class AuthorLink : Link
+    {
+        public string UserEmailAddress { get; set; }
+        //public Author? FullEntity { get; set; }
+    }
+
+    public class Link
+    {
+        public string Rel { get; set; }
+        public string Href { get; set; }
+        public string Title { get; set; }
+        public string Id
+        {
+            get
+            {
+                int pos = Href.LastIndexOf("/");
+                return Href.Substring(pos + 1);
+            }
+        }
+    }
+
+    public class Status
+    {
+        public string Value { get; set; }
+    }
+
+    public class SalesPetal
+    {
+        public MonetaryAmount? Price { get; set; }
+        public decimal? WeightInGrams { get; set; }
+    }
+
+    public class MonetaryAmount
+    {
+        public decimal Value { get; set; }
+        public string MonetaryUnit { get; set; }
+    }
+}
