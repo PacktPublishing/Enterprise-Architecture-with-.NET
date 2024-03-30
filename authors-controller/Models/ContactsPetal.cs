@@ -2,7 +2,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 public class ContactsPetal
 {
-    [BsonElement("adresses")]
+    [BsonElement("addresses")]
     public List<Address>? Addresses { get; set; }
 
     [BsonElement("phones")]
