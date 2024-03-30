@@ -1,0 +1,108 @@
+@page "/authors"
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@inject NavigationManager Navigator
+
+<PageTitle>Authors</PageTitle>
+
+<h1>Authors (total number of @(TotalNumberOfAuthors.HasValue ? TotalNumberOfAuthors : "N/A"))</h1>
+
+@if (AuthorsList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+    @foreach (var author in AuthorsList)
+    {
+        <div class="row">
+            <div class="col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@author.FirstName @author.LastName.ToUpper()</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@author.UserEmailAddress</h6>
+                        <p class="card-text">
+                        @foreach (var phone in @author.Contacts.Phones)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-telephone-forward-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877zm10.761.135a.5.5 0 0 1 .708 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 0 1-.708-.708L14.293 4H9.5a.5.5 0 0 1 0-1h4.793l-1.647-1.646a.5.5 0 0 1 0-.708"/>
+                            </svg>                            
+                            <span>@phone.Number (@phone.IANAType)</span>
+                        }
+                        </p>
+                        <p class="card-text">
+                        @foreach (var address in @author.Contacts.Addresses)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16">
+                            <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
+                            <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
+                            </svg>
+                            <span>@address.StreetNumber @address.StreetName @address.ZipCode @address.CityName (@address.Country.Title)</span>
+                        }
+                        </p>
+                        <a href="/api/Books/?$filter=mainAuthor eq '@author.EntityId'" class="card-link">Author's books</a>
+                        <a href="/author/@author.EntityId" class="card-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>        
+            </div>        
+        </div>        
+    }
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <PaginationBar 
+                CurrentPage="CurrentPage"
+                TotalPages="TotalPages"
+                TotalCount="(int)TotalNumberOfAuthors"
+                PageSize="PageSize"
+                Spread="2"
+                SelectedPage="SelectedPage" />
+        </div>
+    </div>
+
+    <div>
+        <button @onclick="CreateNewAuthor" title="Add author">Add new author</button>
+    </div>
+}
+
+@code {
+    private int? TotalNumberOfAuthors = null;
+    private int CurrentPage = 1;
+    private int TotalPages = 1;
+    private int PageSize = 5;
+
+    private DTO.Author[]? AuthorsList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://localhost:5265/Authors/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
+
+        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://localhost:5265/Authors?$top=" + PageSize);
+    }
+
+    protected async Task SelectedPage(int page)
+    {
+        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://localhost:5265/Authors/$count");
+        TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
+
+        CurrentPage = page;
+        int top = PageSize;
+        int skip = PageSize * (page - 1);
+        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://localhost:5265/Authors?$top=" + top + "&$skip=" + skip);
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void CreateNewAuthor()
+    {
+        Navigator.NavigateTo("/author/");
+    }
+}
