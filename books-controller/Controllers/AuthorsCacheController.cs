@@ -16,7 +16,7 @@ public class AuthorsCacheController : ControllerBase
     public AuthorsCacheController(IConfiguration config, ILogger<AuthorsCacheController> logger)
     {
         _logger = logger;
-        ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://localhost:27017";
+        ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
     }
 

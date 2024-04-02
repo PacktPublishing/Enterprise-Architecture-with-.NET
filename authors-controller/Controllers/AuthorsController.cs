@@ -27,7 +27,7 @@ public class AuthorsController : ControllerBase
     {
         _logger = logger;
         _clientFactory = clientFactory;
-        ConnectionString = config.GetValue<string>("AuthorsConnectionString") ?? "mongodb://localhost:27017";
+        ConnectionString = config.GetValue<string>("AuthorsConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("authors");
     }
 

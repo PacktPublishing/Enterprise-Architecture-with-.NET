@@ -55,21 +55,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://localhost:5298/Books/$count");
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://books/Books/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
 
-        books = await Http.GetFromJsonAsync<DTO.Book[]>(@"http://localhost:5298/Books?$top=" + PageSize);
+        books = await Http.GetFromJsonAsync<DTO.Book[]>(@"http://books/Books?$top=" + PageSize);
     }
 
     protected async Task SelectedPage(int page)
     {
-        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://localhost:5298/Books/$count");
+        TotalNumberOfBooks = await Http.GetFromJsonAsync<int>(@"http://books/Books/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfBooks / PageSize);
 
         CurrentPage = page;
         int top = PageSize;
         int skip = PageSize * (page - 1);
-        books = await Http.GetFromJsonAsync<DTO.Book[]>(@"http://localhost:5298/Books?$top=" + top + "&$skip=" + skip);
+        books = await Http.GetFromJsonAsync<DTO.Book[]>(@"http://books/Books?$top=" + top + "&$skip=" + skip);
 
         InvokeAsync(StateHasChanged);
     }

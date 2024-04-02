@@ -26,7 +26,7 @@ public class BooksController : ControllerBase
     {
         _logger = logger;
         _clientFactory = clientFactory;
-        ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://localhost:27017";
+        ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
     }
 

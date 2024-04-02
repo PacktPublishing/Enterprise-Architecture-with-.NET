@@ -76,6 +76,12 @@ services:
     restart: unless-stopped
     networks:
       - front
+  bpm:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - 5678:5678
+    networks:
+      - back
 networks:
   front:
   back:

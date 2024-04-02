@@ -74,7 +74,7 @@
     {
         if (id != null)
         {
-            CurrentAuthor = await Http.GetFromJsonAsync<DTO.Author>(@"http://localhost:5265/Authors/" + id);
+            CurrentAuthor = await Http.GetFromJsonAsync<DTO.Author>(@"http://authors/Authors/" + id);
 
             // Clone to generate a JSONPatch
         }
@@ -84,7 +84,7 @@
     {
         if (id == null)
         {
-            await Http.PostAsJsonAsync<DTO.Author>(@"http://localhost:5265/Authors/", CurrentAuthor);
+            await Http.PostAsJsonAsync<DTO.Author>(@"http://authors/Authors/", CurrentAuthor);
             // NavigationManager back to list of authors
         }
     }
