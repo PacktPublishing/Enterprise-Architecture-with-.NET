@@ -1,0 +1,38 @@
+@page "/proposal-step3"
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Idea description</a></li>
+    <li class="breadcrumb-item"><a href="#">Author's intent</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Proposed content</li>
+    <li class="breadcrumb-item"><a href="#">Targeted readers</a></li>
+  </ol>
+</nav>
+
+<form>
+  <div class="form-group">
+    <label for="oneLiner">One-line description</label>
+    <input type="text" class="form-control" id="oneLiner" placeholder="This book would be half theory, half exercises">
+  </div>
+  <div class="form-group">
+    <label for="tags">Associated tags</label>
+    <input type="text" data-role="tagsinput" class="form-control" id="tags" placeholder="C#,.NET,Performance">
+  </div>
+  <div class="form-group">
+    <label for="bookType">Collection</label>
+    <select class="form-control" id="bookType">
+      <option>Experts</option>
+      <option>Hands on</option>
+      <option>Total control</option>
+      <option>To the point</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="summary">Summary of the book</label>
+    <textarea class="form-control" id="summary" rows="5"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="index">Proposed index</label>
+    <textarea class="form-control" id="index" rows="5"></textarea>
+  </div>
+</form>
