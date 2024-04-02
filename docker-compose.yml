@@ -49,6 +49,8 @@ services:
     networks:
       - front
       - back
+    volumes:
+      - test:/tmp/data
   authors:
     image: demoeditor/authors-api:0.1
     build:
@@ -82,6 +84,19 @@ services:
       - 5678:5678
     networks:
       - back
+    volumes:
+      - test:/tmp/data
+  mail:
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - 1025:1025
+      - 8025:8025      
+    networks:
+      - back
 networks:
   front:
   back:
+volumes:
+  test:
+    driver: local
