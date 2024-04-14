@@ -1,0 +1,122 @@
+@page "/authordiff/{id}"
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+ 
+<PageTitle>Author (autopatch)</PageTitle>
+ 
+@if (currentAuthor == null || authorContext == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (id == null)
+{
+    <p>You should not reach this page without specifying an author identifier</p>
+}
+else
+{
+    <div>
+        <EditForm EditContext="authorContext" class="row g-3">
+            <div class="col-md-6">
+                <label for="firstName" class="form-label">First name</label>
+                <InputText class="form-control" id="firstName" @bind-Value="currentAuthor.FirstName" />
+            </div>
+            <div class="col-md-6">
+                <label for="lastName" class="form-label">Last name</label>
+                <InputText class="form-control" id="lastName" @bind-Value="currentAuthor.LastName" />
+            </div>
+            <div class="col-12">
+                <label for="email" class="form-label">Email address</label>
+                <InputText type="email" class="form-control" id="email" placeholder=test@company.com @bind-Value="currentAuthor.UserEmailAddress" />
+            </div>
+            <div class="col-md-6">
+                <label for="homePhone" class="form-label">Home phone</label>
+                <InputText class="form-control" id="homePhone" @bind-Value="currentAuthor.HomePhone" />
+            </div>
+            <div class="col-md-6">
+                <label for="mobilePhone" class="form-label">Cell phone</label>
+                <InputText class="form-control" id="mobilePhone" @bind-Value="currentAuthor.MobilePhone" />
+            </div>
+            <div class="col-3">
+                <label for="streetNumber" class="form-label">Number</label>
+                <InputText class="form-control" id="streetNumber" placeholder="12" @bind-Value="currentAuthor.MainAddress.StreetNumber" />
+            </div>
+            <div class="col-6">
+                <label for="streetName" class="form-label">Street</label>
+                <InputText class="form-control" id="streetName" placeholder="Main Street" @bind-Value="currentAuthor.MainAddress.StreetName" />
+            </div>
+            <div class="col-3">
+                <label for="zip" class="form-label">Zip code</label>
+                <InputText class="form-control" id="zip" @bind-Value="currentAuthor.MainAddress.ZipCode" />
+            </div>
+            <div class="col-4">
+                <label for="city" class="form-label">City</label>
+                <InputText class="form-control" id="city" @bind-Value="currentAuthor.MainAddress.CityName" />
+            </div>
+            <div class="col-4">
+                <label for="inputState" class="form-label">Country</label>
+                <InputSelect id="inputState" class="form-select" @bind-Value="currentAuthor.MainAddress.Country.ISOCode">
+                    <option selected>Choose...</option>
+                    <option value="FRA">France</option>
+                    <option value="IND">India</option>
+                    <option value="USA">USA</option>
+                </InputSelect>
+            </div>
+            <div class="col-4">
+                <div class="form-check">
+                    <label class="form-check-label" for="gridCheck">
+                        Block author (prevents access to their books, in case of proven misconduct)
+                    </label>
+                    <InputCheckbox class="form-check-input" id="gridCheck" @bind-Value="currentAuthor.IsBlocked" />
+                </div>
+            </div>
+            <h2>No need for a save button; every atomic change is sent to the server</h2>
+        </EditForm>
+    </div>
+}
+ 
+@code {
+    [Parameter]
+    public string? id { get; set; }
+ 
+    private DTO.Author currentAuthor = new DTO.Author();
+ 
+    private EditContext authorContext;
+ 
+    protected override async Task OnInitializedAsync()
+    {
+        if (id == null) return;
+        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://authors/Authors/" + id);
+        authorContext = new EditContext(currentAuthor);
+        authorContext.OnFieldChanged += Modification;
+    }
+ 
+    private async void Modification(object sender, FieldChangedEventArgs e)
+    {
+        string path = e.FieldIdentifier.FieldName;
+        switch (e.FieldIdentifier.FieldName)
+        {
+            case "HomePhone":
+                path = "/Contacts/Phones[IANAType='home']/Number";
+                break;
+            case "MobilePhone":
+                path = "/Contacts/Phones[IANAType='cell']/Number";
+                break;
+            case "StreetNumber":
+            case "StreetName":
+            case "ZipCode":
+            case "CityName":
+                path = "/Contacts/Addresses[0]/" + path;
+                break;
+            case "ISOCode":
+                path = "/Contacts/Addresses[0]/Country/" + path;
+                break;
+            default:
+                path = "/" + path.Substring(0, 1).ToLower() + path.Substring(1);
+                break;
+        }
+
+        string jsonPatch = "[{\"op\": \"replace\", \"path\": \"" + path + "\", \"value\": \"" + e.FieldIdentifier.Model.GetType().GetProperty(e.FieldIdentifier.FieldName)?.GetValue(e.FieldIdentifier.Model) + "\"}]";
+        var content = new StringContent(jsonPatch, System.Text.Encoding.UTF8, "application/json");
+        await Http.PatchAsync("http://authors/Authors/" + currentAuthor.EntityId, content);
+    }    
+}
