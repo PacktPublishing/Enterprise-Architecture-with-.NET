@@ -1,0 +1,1056 @@
+{
+	"info": {
+		"_postman_id": "ecd43598-6f64-4dda-9a6e-d63354a572ba",
+		"name": "Books Data Referential",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "389879"
+	},
+	"item": [
+		{
+			"name": "Create book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book created with the right ISBN\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"entityId\": \"0024\",\r\n    \"isbn\": \"978-2409002206\",\r\n    \"title\": \"Docker, 4th edition\",\r\n    \"numberOfPages\": 812,\r\n    \"publishDate\": \"2019-09-01\",\r\n    \"editing\": {\r\n        \"numberOfChapters\": 15,\r\n        \"status\": { \"value\": \"available\" },\r\n        \"mainAuthor\": {\r\n            \"rel\": \"dc:creator\",\r\n            \"href\": \"http://authors/Authors/0012\",\r\n            \"title\": \"JP Gouigoux\"\r\n        }\r\n    },\r\n    \"sales\": {\r\n        \"price\": {\r\n            \"value\": 54.30,\r\n            \"monetaryUnit\": \"EUR\"\r\n        },\r\n        \"weightInGrams\": 1245\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5298/Books/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Title correctly modified\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.title).to.eql('Performance in .NET, Second Edition');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json-patch+json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n    \"path\": \"/title\",\r\n    \"op\": \"replace\",\r\n    \"value\": \"Performance in .NET, Second Edition\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book has the right entity identifier\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.entityId).to.eql('0024');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"1\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/$count",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"$count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"No empty array\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.eql(\"[]\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read archived book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book has the right entity identifier\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.entityId).to.eql('0024');\r",
+							"});\r",
+							"pm.test(\"Book should be archived\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.editing.status.value).to.eql('archived');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"0\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/$count",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"$count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"No empty array\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"[]\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recover book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json-patch+json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n    \"path\": \"/editing/status/value\",\r\n    \"op\": \"replace\",\r\n    \"value\": \"available\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read recovered book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book has the right entity identifier\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.entityId).to.eql('0024');\r",
+							"});\r",
+							"pm.test(\"Book should be archived\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.editing.status.value).to.eql('available');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"1\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/$count",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"$count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"No empty array\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.eql(\"[]\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete book permanently",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024?fullDeleteIncludingHistory=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					],
+					"query": [
+						{
+							"key": "fullDeleteIncludingHistory",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read deleted book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"0\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/$count",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"$count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"No empty array\", function () {\r",
+							"    pm.expect(pm.response.text()).to.eql(\"[]\");\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search books",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books?$orderby=numberOfPages desc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books"
+					],
+					"query": [
+						{
+							"key": "$orderby",
+							"value": "numberOfPages desc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paginate books",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books?$top=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books"
+					],
+					"query": [
+						{
+							"key": "$top",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read book state",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5298/Books/0024?providedValueDate=2024-03-06T22:00:00",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					],
+					"query": [
+						{
+							"key": "providedValueDate",
+							"value": "2024-03-06T22:00:00"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import catalog",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Create authors",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book created with the right ISBN\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"entityId\": \"jpgou\",\r\n    \"firstName\": \"Jean-Philippe\",\r\n    \"lastName\": \"Gouigoux\",\r\n    \"userEmailAddress\": \"jp.gouigoux@free.fr\",\r\n    \"restriction\": \"none\",\r\n    \"contacts\": {\r\n        \"addresses\": [\r\n            {\r\n                \"streetNumber\": \"11\",\r\n                \"streetName\": \"Vince Street\",\r\n                \"cityName\": \"Paris\",\r\n                \"zipCode\": \"75000\",\r\n                \"country\": {\r\n                    \"rel\": \"addressCountry\",\r\n                    \"href\": \"/api/authors/params/countryCodes/FRA\",\r\n                    \"title\": \"France\",\r\n                    \"isoCode\": \"FRA\"\r\n                }\r\n            }\r\n        ],\r\n        \"phones\": [\r\n            {\r\n                \"ianaType\": \"home\",\r\n                \"number\": \"+33297979797\"\r\n            },\r\n            {\r\n                \"ianaType\": \"cell\",\r\n                \"number\": \"+33600000000\"\r\n            }\r\n        ]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:82/Authors/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "82",
+					"path": [
+						"Authors",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Book created with the right ISBN\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:82/Authors/jpgou",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "82",
+					"path": [
+						"Authors",
+						"jpgou"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch author",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Title correctly modified\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.title).to.eql('Performance in .NET, Second Edition');\r",
+							"});\r",
+							"pm.test(\"Response time is within limits\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json-patch+json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n    \"path\": \"/title\",\r\n    \"op\": \"replace\",\r\n    \"value\": \"Performance in .NET, Second Edition\"\r\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5298/Books/0024",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5298",
+					"path": [
+						"Books",
+						"0024"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "headerPrefix",
+				"value": "Bearer",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "accessToken",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "http://localhost:5298/authentication/login-callback",
+				"type": "string"
+			},
+			{
+				"key": "useBrowser",
+				"value": false,
+				"type": "boolean"
+			},
+			{
+				"key": "clientSecret",
+				"value": "Oyj6ogPu4lEUaRR3SK4NNnTkLjPcjYa9",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "BooksAPI",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "http://localhost:8080/realms/demoeditor/protocol/openid-connect/token",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "http://localhost:8080/realms/demoeditor/protocol/openid-connect/auth",
+				"type": "string"
+			},
+			{
+				"key": "tokenName",
+				"value": "keycloak-token",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "authorization_code",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

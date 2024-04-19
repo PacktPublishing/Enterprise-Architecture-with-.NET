@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: DemoEditor middle office API
+  description: Contract for validation of internal requests at DemoEditor company. This defines how requests of different types are treated by people allowed to, and what decisions can be taken for each template of request.
+  contact:
+    email: api@demoeditor.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://demoeditor.org/api/mo
+tags:
+  - name: templates
+    description: Define templates that requests must follow
+  - name: requests
+    description: Are instances of templates requesting a decision
+  - name: decisions
+    description: Persist decisions taken by a user on a request
+paths:
+  /templates:
+    post:
+      tags:
+        - templates
+      summary: Create a request template
+      description: This enables to define how validation requests of the same type should work, in particular what data they request or demand, what possible outcomes can be decided on the request and what would be the service behaviour in each decision.
+      responses:
+        '201':
+          description: Successful creation
+  /templates/{id}:
+    get:
+      tags:
+        - templates
+      summary: Retrieve a template definition by its identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'          
+    delete:
+      tags:
+        - templates
+      summary: Delete an existing template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful deletion
+  /requests:
+    post:
+      tags:
+        - requests
+      summary: Create a request instance
+      responses:
+        '201':
+          description: Successful creation
+  /requests/{id}:
+    get:
+      tags:
+        - requests
+      summary: Retrieve a request by its identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'          
+    delete:
+      tags:
+        - requests
+      summary: Delete an existing request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful deletion
+  /requests/{id}/decision:
+    post:
+      tags:
+        - decisions
+      summary: Irrevocably add a decision on a given request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Only one decision is possible on a request, and it cannot be deleted.
+      responses:
+        '201':
+          description: Successful attribution of a decision
+components:
+  schemas:
+    Template:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: array
+          items:
+            type: object
+            properties:
+              lang:
+                type: string
+              value:
+                type: string
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    lang:
+                      type: string
+                    value:
+                      type: string
+              inputType:
+                type: string
+              required:
+                type: boolean
+        possibleDecisions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    lang:
+                      type: string
+                    value:
+                      type: string
+              actions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    href:
+                      type: string
+                    verb:
+                      type: string
+    Request:
+      required:
+        - template
+        - id
+        - title
+      type: object
+      properties:
+        template:
+          type: string
+        id:
+          type: string
+        title:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              value:
+                type: string
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          format: url
+        rel:
+          type: string
+        title:
+          type: string
+    AuthorLink:
+      allOf:
+        - $ref: '#/components/schemas/Link'
+        - type: object
+          properties:
+            authorId:
+              type: string
