@@ -10,3 +10,4 @@ RUN dotnet publish portal-gui.csproj -c Release -o /app/publish
 
 FROM nginx AS final
 COPY --from=publish /app/publish/wwwroot /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf

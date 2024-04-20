@@ -75,7 +75,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 88:80
-    restart: unless-stopped
     networks:
       - front
   bpm:
