@@ -39,13 +39,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 81:8080
-    restart: unless-stopped
-    healthcheck:
-      test: curl http://localhost:8080/status
-      interval: 10s
-      retries: 3
-      start_period: 5s
-      timeout: 1s
     networks:
       - front
       - back
@@ -58,13 +51,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - 82:8080
-    restart: unless-stopped
-    healthcheck:
-      test: curl http://localhost:8080/status
-      interval: 10s
-      retries: 3
-      start_period: 5s
-      timeout: 1s
     networks:
       - front
       - back
@@ -74,7 +60,7 @@ services:
       context: ./portal-gui
       dockerfile: Dockerfile
     ports:
-      - 88:80
+      - 80:80
     networks:
       - front
   bpm:
@@ -99,3 +85,5 @@ networks:
 volumes:
   test:
     driver: local
+  caddydata:
+  caddyconfig:

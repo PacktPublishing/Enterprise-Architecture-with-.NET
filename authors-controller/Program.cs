@@ -23,7 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(options => options.WithOrigins("http://localhost:5233").AllowAnyMethod().AllowAnyHeader().SetPreflightMaxAge(TimeSpan.FromSeconds(1000)));
+app.UseCors(options => options.WithOrigins("http://localhost").AllowAnyMethod().AllowAnyHeader());
 
 app.UseHttpsRedirection();
 

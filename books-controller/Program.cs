@@ -29,8 +29,8 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient("AuthorsWebhook", client => client.BaseAddress = new Uri("http://demoeditor.org/authors/Subscribe"));
-builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://demoeditor.org/authors")).AddPolicyHandler(GetRetryPolicy());
+builder.Services.AddHttpClient("AuthorsWebhook", client => client.BaseAddress = new Uri("http://localhost:82/Authors/Subscribe"));
+builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://localhost:82/Authors")).AddPolicyHandler(GetRetryPolicy());
 
 builder.Services.AddCors();
 
@@ -44,7 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //if (app.Environment.IsDevelopment())
-app.UseCors(options => options.WithOrigins("http://localhost:5233").AllowAnyMethod().AllowAnyHeader().SetPreflightMaxAge(TimeSpan.FromSeconds(1000)));
+app.UseCors(options => options.WithOrigins("http://localhost").AllowAnyMethod().AllowAnyHeader());
 
 app.UseHttpsRedirection();
 

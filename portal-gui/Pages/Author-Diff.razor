@@ -85,7 +85,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         if (id == null) return;
-        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://authors/Authors/" + id);
+        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://localhost:82/Authors/" + id);
         authorContext = new EditContext(currentAuthor);
         authorContext.OnFieldChanged += Modification;
     }
@@ -117,6 +117,6 @@ else
 
         string jsonPatch = "[{\"op\": \"replace\", \"path\": \"" + path + "\", \"value\": \"" + e.FieldIdentifier.Model.GetType().GetProperty(e.FieldIdentifier.FieldName)?.GetValue(e.FieldIdentifier.Model) + "\"}]";
         var content = new StringContent(jsonPatch, System.Text.Encoding.UTF8, "application/json");
-        await Http.PatchAsync("http://authors/Authors/" + currentAuthor.EntityId, content);
+        await Http.PatchAsync("http://localhost:82/Authors/" + currentAuthor.EntityId, content);
     }    
 }
