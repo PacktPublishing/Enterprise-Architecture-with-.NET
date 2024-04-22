@@ -85,7 +85,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         if (id == null) return;
-        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://localhost:82/Authors/" + id);
+        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://authors:82/Authors/" + id);
         authorContext = new EditContext(currentAuthor);
         authorContext.OnFieldChanged += Modification;
     }
@@ -105,18 +105,29 @@ else
             case "StreetName":
             case "ZipCode":
             case "CityName":
-                path = "/Contacts/Addresses[0]/" + path;
+                path = "/Contacts/Addresses/0/" + path;
                 break;
             case "ISOCode":
-                path = "/Contacts/Addresses[0]/Country/" + path;
+                path = "/Contacts/Addresses/0/Country/" + path;
                 break;
             default:
                 path = "/" + path.Substring(0, 1).ToLower() + path.Substring(1);
                 break;
         }
+            
+                @* "addressType": "urn:org:demoeditor:addressType:living",
+                "beginDate": "1994-08-15T23:00:00",
+                "endDate": "1995-06-15T09:00:00",
+                "address": {
+                    "streetNumber": "12",
+                    "streetName": "Main Street",
+                    "zipCode": "PA 19004-3104",
+                    "cityName": "Philadelphia"
+                }                 *@
+
 
         string jsonPatch = "[{\"op\": \"replace\", \"path\": \"" + path + "\", \"value\": \"" + e.FieldIdentifier.Model.GetType().GetProperty(e.FieldIdentifier.FieldName)?.GetValue(e.FieldIdentifier.Model) + "\"}]";
         var content = new StringContent(jsonPatch, System.Text.Encoding.UTF8, "application/json");
-        await Http.PatchAsync("http://localhost:82/Authors/" + currentAuthor.EntityId, content);
+        await Http.PatchAsync("http://authors:82/Authors/" + currentAuthor.EntityId, content);
     }    
 }

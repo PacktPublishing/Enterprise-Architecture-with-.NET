@@ -2,6 +2,7 @@
 @page "/author/{id}"
 @using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
+@inject NavigationManager Navigator
 
 <PageTitle>Author</PageTitle>
 
@@ -9,55 +10,55 @@
     <EditForm OnSubmit="Save" Model="CurrentAuthor" class="row g-3">
         <div class="col-md-6">
             <label for="firstName" class="form-label">First name</label>
-            <input type="text" class="form-control" id="firstName" value="@CurrentAuthor.FirstName">
+            <InputText class="form-control" id="firstName" @bind-Value="CurrentAuthor.FirstName" />
         </div>
         <div class="col-md-6">
             <label for="lastName" class="form-label">Last name</label>
-            <input type="text" class="form-control" id="lastName" value="@CurrentAuthor.LastName">
+            <InputText class="form-control" id="lastName" @bind-Value="CurrentAuthor.LastName" />
         </div>
         <div class="col-12">
             <label for="email" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="email" placeholder="test@company.com" value="@CurrentAuthor.UserEmailAddress">
+            <InputText type="email" class="form-control" id="email" placeholder=test@company.com @bind-Value="CurrentAuthor.UserEmailAddress" />
         </div>
         <div class="col-md-6">
             <label for="homePhone" class="form-label">Home phone</label>
-            <input type="text" class="form-control" id="homePhone">
+            <InputText class="form-control" id="homePhone" @bind-Value="CurrentAuthor.HomePhone" />
         </div>
         <div class="col-md-6">
             <label for="mobilePhone" class="form-label">Cell phone</label>
-            <input type="text" class="form-control" id="mobilePhone">
+            <InputText class="form-control" id="mobilePhone" @bind-Value="CurrentAuthor.MobilePhone" />
         </div>
         <div class="col-3">
             <label for="streetNumber" class="form-label">Number</label>
-            <input type="text" class="form-control" id="streetNumber" placeholder="12">
+            <InputText class="form-control" id="streetNumber" placeholder="12" @bind-Value="CurrentAuthor.MainAddress.StreetNumber" />
         </div>
         <div class="col-6">
             <label for="streetName" class="form-label">Street</label>
-            <input type="text" class="form-control" id="streetName" placeholder="Main Street">
+            <InputText class="form-control" id="streetName" placeholder="Main Street" @bind-Value="CurrentAuthor.MainAddress.StreetName" />
         </div>
         <div class="col-3">
             <label for="zip" class="form-label">Zip code</label>
-            <input type="text" class="form-control" id="zip">
+            <InputText class="form-control" id="zip" @bind-Value="CurrentAuthor.MainAddress.ZipCode" />
         </div>
         <div class="col-4">
             <label for="city" class="form-label">City</label>
-            <input type="text" class="form-control" id="city">
+            <InputText class="form-control" id="city" @bind-Value="CurrentAuthor.MainAddress.CityName" />
         </div>
         <div class="col-4">
             <label for="inputState" class="form-label">Country</label>
-            <select id="inputState" class="form-select">
+            <InputSelect id="inputState" class="form-select" @bind-Value="CurrentAuthor.MainAddress.Country.ISOCode">
                 <option selected>Choose...</option>
-                <option>France</option>
-                <option>India</option>
-                <option>USA</option>
-            </select>
+                <option value="FRA">France</option>
+                <option value="IND">India</option>
+                <option value="USA">USA</option>
+            </InputSelect>
         </div>
         <div class="col-4">
             <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="gridCheck">
-            <label class="form-check-label" for="gridCheck">
-                Block author (prevents access to their books, in case of proven misconduct)
-            </label>
+                <label class="form-check-label" for="gridCheck">
+                    Block author (prevents access to their books, in case of proven misconduct)
+                </label>
+                <InputCheckbox class="form-check-input" id="gridCheck" @bind-Value="CurrentAuthor.IsBlocked" />
             </div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg">Save</button>
@@ -74,18 +75,16 @@
     {
         if (id != null)
         {
-            CurrentAuthor = await Http.GetFromJsonAsync<DTO.Author>(@"http://authors/Authors/" + id);
-
-            // Clone to generate a JSONPatch
+            CurrentAuthor = await Http.GetFromJsonAsync<DTO.Author>(@"http://authors:82/Authors/" + id);
         }
     }
 
     protected async void Save()
     {
+        await Http.PostAsJsonAsync<DTO.Author>(@"http://authors:82/Authors/", CurrentAuthor);
         if (id == null)
         {
-            await Http.PostAsJsonAsync<DTO.Author>(@"http://authors/Authors/", CurrentAuthor);
-            // NavigationManager back to list of authors
+            Navigator.NavigateTo("/authors");
         }
     }
 }

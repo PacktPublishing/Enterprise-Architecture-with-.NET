@@ -16,7 +16,7 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://authors:82") });
+        builder.Services.AddScoped(sp => new HttpClient());
 
         // builder.Services.AddOidcAuthentication(options =>
         // {

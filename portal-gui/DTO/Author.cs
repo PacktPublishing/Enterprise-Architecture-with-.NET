@@ -25,11 +25,13 @@ public class Author
         get
         {
             Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
+            Console.WriteLine("HomePhone est lu");
             if (home != null) return home.Number;
             return "N/A";
         }
         set
         {
+            Console.WriteLine("HomePhone a changé");
             Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
             if (home != null) home.Number = value;
             else
