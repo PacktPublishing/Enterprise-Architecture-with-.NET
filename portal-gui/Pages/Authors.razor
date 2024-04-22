@@ -82,21 +82,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors/Authors/$count");
+        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
 
-        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors/Authors?$top=" + PageSize);
+        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + PageSize);
     }
 
     protected async Task SelectedPage(int page)
     {
-        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors/Authors/$count");
+        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
 
         CurrentPage = page;
         int top = PageSize;
         int skip = PageSize * (page - 1);
-        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors/Authors?$top=" + top + "&$skip=" + skip);
+        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + top + "&$skip=" + skip);
 
         InvokeAsync(StateHasChanged);
     }

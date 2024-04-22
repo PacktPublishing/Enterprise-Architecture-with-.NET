@@ -7,8 +7,7 @@ public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
         NavigationManager navigation)
         : base(provider, navigation)
     {
-        ConfigureHandler(
-            authorizedUrls: new[] { "http://localhost:5298", "http://localhost:5298/Books" },
-            scopes: new[] { "Portal-dedicated", "roles", "email", "profile" });
+        //ConfigureHandler(authorizedUrls: new[] { "http://books:81" }, scopes: new[] { "email", "profile" });
+        ConfigureHandler(authorizedUrls: new[] { "http://books:81/Books/$count", "http://books:81/Books/" });
     }
 }

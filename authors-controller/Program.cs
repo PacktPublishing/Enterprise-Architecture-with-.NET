@@ -23,7 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(options => options.WithOrigins("http://localhost").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options => options.WithOrigins("http://portal").AllowAnyMethod().AllowAnyHeader());
 
 app.UseHttpsRedirection();
 

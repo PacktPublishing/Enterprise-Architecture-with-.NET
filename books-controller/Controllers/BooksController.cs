@@ -9,7 +9,7 @@ using FastExcel;
 
 namespace books_controller.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class BooksController : ControllerBase
@@ -30,7 +30,7 @@ public class BooksController : ControllerBase
         Database = new MongoClient(ConnectionString).GetDatabase("books");
     }
 
-    [Authorize(Policy = "director")]
+    //[Authorize(Policy = "director")]
     [HttpPut]
     [Route("Import")]
     public async Task<IActionResult> ImportBooksCatalog([FromQuery] string? localFileAddress = "/tmp/DemoEditor-BooksCatalog.xlsx")
@@ -98,7 +98,7 @@ public class BooksController : ControllerBase
             return StatusCode(500);
     }
 
-    [Authorize(Policy = "editor")]
+    //[Authorize(Policy = "editor")]
     [HttpGet]
     public IActionResult Get(
         [FromQuery(Name = "$orderby")] string orderby = "",
@@ -211,7 +211,7 @@ public class BooksController : ControllerBase
         }
     }
 
-    [Authorize(Policy = "editor")]
+    //[Authorize(Policy = "editor")]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] Book book, 
@@ -248,7 +248,7 @@ public class BooksController : ControllerBase
         return await Patch(book.EntityId, equivPatches, providedValueDate);
     }
     
-    [Authorize(Policy = "editor")]
+    //[Authorize(Policy = "editor")]
     [HttpPatch]
     [Route("{entityId}")]
     public async Task<IActionResult> Patch(
@@ -308,7 +308,7 @@ public class BooksController : ControllerBase
         return new ObjectResult(book);
     }
 
-    [Authorize(Policy = "editor")]
+    //[Authorize(Policy = "editor")]
     [HttpDelete]
     [Route("{entityId}")]
     public async Task<IActionResult> Delete(

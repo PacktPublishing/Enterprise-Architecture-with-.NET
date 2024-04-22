@@ -14,24 +14,24 @@ services:
       - ME_CONFIG_MONGODB_SERVER=db
     networks:
       - back
-  iam:
-    image: quay.io/keycloak/keycloak:23.0.7
-    ports:
-      - 8080:8080
-    environment:
-      - KEYCLOAK_ADMIN=forster
-      - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
-    command: start-dev
-    networks:
-      - front
-      - back
-  mom:
-    image: rabbitmq:3.13-management
-    ports:
-      - 15672:15672
-      - 5672:5672
-    networks:
-      - back
+  # iam:
+  #   image: quay.io/keycloak/keycloak:23.0.7
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     - KEYCLOAK_ADMIN=forster
+  #     - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
+  #   command: start-dev
+  #   networks:
+  #     - front
+  #     - back
+  # mom:
+  #   image: rabbitmq:3.13-management
+  #   ports:
+  #     - 15672:15672
+  #     - 5672:5672
+  #   networks:
+  #     - back
   books:
     image: demoeditor/books-api:0.1
     build:
@@ -63,22 +63,22 @@ services:
       - 80:80
     networks:
       - front
-  bpm:
-    image: docker.n8n.io/n8nio/n8n
-    ports:
-      - 5678:5678
-    networks:
-      - back
-    volumes:
-      - test:/tmp/data
-  mail:
-    image: mailhog/mailhog
-    restart: always
-    ports:
-      - 1025:1025
-      - 8025:8025      
-    networks:
-      - back
+  # bpm:
+  #   image: docker.n8n.io/n8nio/n8n
+  #   ports:
+  #     - 5678:5678
+  #   networks:
+  #     - back
+  #   volumes:
+  #     - test:/tmp/data
+  # mail:
+  #   image: mailhog/mailhog
+  #   restart: always
+  #   ports:
+  #     - 1025:1025
+  #     - 8025:8025      
+  #   networks:
+  #     - back
 networks:
   front:
   back:
