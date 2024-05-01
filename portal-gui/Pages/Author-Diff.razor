@@ -69,10 +69,10 @@ else
             </div>
             <div class="col-4">
                 <div class="form-check">
-                    <label class="form-check-label" for="gridCheck">
+                    <label class="form-check-label" for="isBlocked">
                         Block author (prevents access to their books, in case of proven misconduct)
                     </label>
-                    <InputCheckbox class="form-check-input" id="gridCheck" @bind-Value="currentAuthor.IsBlocked" />
+                    <InputCheckbox class="form-check-input" id="isBlocked" @bind-Value="currentAuthor.IsBlocked" />
                 </div>
             </div>
             <h2>No need for a save button; every atomic change is sent to the server</h2>
@@ -133,6 +133,8 @@ else
 
 
         string jsonPatch = "[{\"op\": \"replace\", \"path\": \"" + path + "\", \"value\": \"" + e.FieldIdentifier.Model.GetType().GetProperty(e.FieldIdentifier.FieldName)?.GetValue(e.FieldIdentifier.Model) + "\"}]";
+        if (e.FieldIdentifier.FieldName == "IsBlocked")
+            jsonPatch = "[{\"op\": \"replace\", \"path\": \"restriction\", \"value\": \"" + currentAuthor.Restriction + "\"}]";
         var content = new StringContent(jsonPatch, System.Text.Encoding.UTF8, "application/json");
         await Http.PatchAsync("http://authors:82/Authors/" + currentAuthor.EntityId, content);
     }    

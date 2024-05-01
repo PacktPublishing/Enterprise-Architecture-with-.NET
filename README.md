@@ -15,15 +15,19 @@ Example exposed on localhost to avoid HTTPS setup complexities (any real domain,
 Create a demoeditor realm
 Add author, editor and director realm roles
 Add a `francesca` user, with director role
-Create a client with ID `portal`, add implicit flow (TO BE CHECKED)
+Create a client with ID `portal` and use default settings in the `Capability config` tab of the wizzard
 Add the login-callback, logout-callback and web origins for localhost, but also ports 81 and 82
-Add the realm role mapping to the portal-dedicated client scope + add to ID token and to userinfo (TO BE CHECKED WHICH ONE IS ESSENTIAL TO THE CLIENT)
+Add the realm role mapping to the portal-dedicated client scope + add to ID token
 
 ![Client settings](images/ClientSettings.png)
 
 (or use the file to import the realm)
 
 
+
+## Running portal
+
+If you have a 404, change port to another, like 88 (do not forget to adjust CORS settings in books and authors)
 
 
 https://code-maze.com/using-access-token-with-blazor-webassembly-httpclient/

@@ -24,7 +24,9 @@ public class Author
     {
         get 
         {
+            if (Contacts?.Phones is null) return new List<Phone>();
             Contacts.Phones.Sort((p1, p2) => ConvertIANATypeToPriority(p1.IANAType) - ConvertIANATypeToPriority(p2.IANAType));
+            return Contacts.Phones;
         }
     }
 

@@ -4,27 +4,27 @@ services:
     image: mongo:4.4
     networks:
       - back
-  dbgui:
-    image: mongo-express:1.0.2
-    ports:
-      - 8081:8081
-    environment:
-      - ME_CONFIG_BASICAUTH_USERNAME=forster
-      - ME_CONFIG_BASICAUTH_PASSWORD=gOU89tRF05
-      - ME_CONFIG_MONGODB_SERVER=db
-    networks:
-      - back
-  # iam:
-  #   image: quay.io/keycloak/keycloak:23.0.7
+  # dbgui:
+  #   image: mongo-express:1.0.2
   #   ports:
-  #     - 8080:8080
+  #     - 8081:8081
   #   environment:
-  #     - KEYCLOAK_ADMIN=forster
-  #     - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
-  #   command: start-dev
+  #     - ME_CONFIG_BASICAUTH_USERNAME=forster
+  #     - ME_CONFIG_BASICAUTH_PASSWORD=gOU89tRF05
+  #     - ME_CONFIG_MONGODB_SERVER=db
   #   networks:
-  #     - front
   #     - back
+  iam:
+    image: quay.io/keycloak/keycloak:23.0.7
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_ADMIN=forster
+      - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
+    command: start-dev
+    networks:
+      - front
+      - back
   # mom:
   #   image: rabbitmq:3.13-management
   #   ports:
@@ -60,7 +60,7 @@ services:
       context: ./portal-gui
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - 88:80
     networks:
       - front
   # bpm:

@@ -52,7 +52,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //if (app.Environment.IsDevelopment())
-app.UseCors(options => options.WithOrigins("http://portal").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options => options.WithOrigins("http://portal", "http://portal:88").AllowAnyMethod().AllowAnyHeader());
 
 app.UseHttpsRedirection();
 

@@ -20,14 +20,28 @@
             <label for="email" class="form-label">Email address</label>
             <InputText type="email" class="form-control" id="email" placeholder=test@company.com @bind-Value="CurrentAuthor.UserEmailAddress" />
         </div>
-        <div class="col-md-6">
+        @* <div class="col-md-6">
             <label for="homePhone" class="form-label">Home phone</label>
             <InputText class="form-control" id="homePhone" @bind-Value="CurrentAuthor.HomePhone" />
         </div>
         <div class="col-md-6">
             <label for="mobilePhone" class="form-label">Cell phone</label>
             <InputText class="form-control" id="mobilePhone" @bind-Value="CurrentAuthor.MobilePhone" />
-        </div>
+        </div> *@
+        @if (CurrentAuthor.SortedPhones.Count() > 0)
+        {
+            <div class="col-md-6">
+                <label for="firstPhone" class="form-label">@CurrentAuthor.SortedPhones[0].IANAType phone</label>
+                <InputText class="form-control" id="firstPhone" @bind-Value="CurrentAuthor.SortedPhones[0].Number" />
+            </div>
+        }
+        @if (CurrentAuthor.SortedPhones.Count() > 1)
+        {
+            <div class="col-md-6">
+                <label for="secondPhone" class="form-label">@CurrentAuthor.SortedPhones[1].IANAType phone</label>
+                <InputText class="form-control" id="secondPhone" @bind-Value="CurrentAuthor.SortedPhones[1].Number" />
+            </div>
+        }
         <div class="col-3">
             <label for="streetNumber" class="form-label">Number</label>
             <InputText class="form-control" id="streetNumber" placeholder="12" @bind-Value="CurrentAuthor.MainAddress.StreetNumber" />
