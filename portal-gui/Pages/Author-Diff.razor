@@ -28,14 +28,20 @@ else
                 <label for="email" class="form-label">Email address</label>
                 <InputText type="email" class="form-control" id="email" placeholder=test@company.com @bind-Value="currentAuthor.UserEmailAddress" />
             </div>
-            <div class="col-md-6">
-                <label for="homePhone" class="form-label">Home phone</label>
-                <InputText class="form-control" id="homePhone" @bind-Value="currentAuthor.HomePhone" />
-            </div>
-            <div class="col-md-6">
-                <label for="mobilePhone" class="form-label">Cell phone</label>
-                <InputText class="form-control" id="mobilePhone" @bind-Value="currentAuthor.MobilePhone" />
-            </div>
+            @if (currentAuthor.SortedPhones.Count() > 0)
+            {
+                <div class="col-md-6">
+                    <label for="firstPhone" class="form-label">@currentAuthor.SortedPhones[0].IANAType phone</label>
+                    <InputText class="form-control" id="firstPhone" @bind-Value="currentAuthor.SortedPhones[0].Number" />
+                </div>
+            }
+            @if (currentAuthor.SortedPhones.Count() > 1)
+            {
+                <div class="col-md-6">
+                    <label for="secondPhone" class="form-label">@currentAuthor.SortedPhones[1].IANAType phone</label>
+                    <InputText class="form-control" id="secondPhone" @bind-Value="currentAuthor.SortedPhones[1].Number" />
+                </div>
+            }
             <div class="col-3">
                 <label for="streetNumber" class="form-label">Number</label>
                 <InputText class="form-control" id="streetNumber" placeholder="12" @bind-Value="currentAuthor.MainAddress.StreetNumber" />

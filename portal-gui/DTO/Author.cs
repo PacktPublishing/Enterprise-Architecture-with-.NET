@@ -20,49 +20,68 @@ public class Author
         }
     }
 
-    public string? HomePhone
+    public List<Phone> SortedPhones
     {
-        get
+        get 
         {
-            Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
-            Console.WriteLine("HomePhone est lu");
-            if (home != null) return home.Number;
-            return "N/A";
-        }
-        set
-        {
-            Console.WriteLine("HomePhone a changé");
-            Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
-            if (home != null) home.Number = value;
-            else
-            {
-                if (Contacts == null) Contacts = new ContactsPetal();
-                if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
-                Contacts.Phones.Add(new Phone() { IANAType = "home", Number = value });
-            }
+            Contacts.Phones.Sort((p1, p2) => ConvertIANATypeToPriority(p1.IANAType) - ConvertIANATypeToPriority(p2.IANAType));
         }
     }
 
-    public string? MobilePhone
+    private static int ConvertIANATypeToPriority(string IANAType)
     {
-        get
+        // Gives the order in which the types of phones will be displayed
+        switch (IANAType)
         {
-            Phone cell = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "cell");
-            if (cell != null) return cell.Number;
-            return "N/A";
-        }
-        set
-        {
-            Phone cell = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "cell");
-            if (cell != null) cell.Number = value;
-            else
-            {
-                if (Contacts == null) Contacts = new ContactsPetal();
-                if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
-                Contacts.Phones.Add(new Phone() { IANAType = "cell", Number = value });
-            }
+            case "home": return 0;
+            case "cell": return 1;
+            default: return 2;
         }
     }
+
+    // public string? HomePhone
+    // {
+    //     get
+    //     {
+    //         Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
+    //         Console.WriteLine("HomePhone est lu");
+    //         if (home != null) return home.Number;
+    //         return "N/A";
+    //     }
+    //     set
+    //     {
+    //         Console.WriteLine("HomePhone a changé");
+    //         Phone home = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "home");
+    //         if (home != null) home.Number = value;
+    //         else
+    //         {
+    //             if (Contacts == null) Contacts = new ContactsPetal();
+    //             if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
+    //             Contacts.Phones.Add(new Phone() { IANAType = "home", Number = value });
+    //         }
+    //     }
+    // }
+
+    // public string? MobilePhone
+    // {
+    //     get
+    //     {
+    //         Phone cell = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "cell");
+    //         if (cell != null) return cell.Number;
+    //         return "N/A";
+    //     }
+    //     set
+    //     {
+    //         Phone cell = Contacts?.Phones?.FirstOrDefault(p => p.IANAType == "cell");
+    //         if (cell != null) cell.Number = value;
+    //         else
+    //         {
+    //             if (Contacts == null) Contacts = new ContactsPetal();
+    //             if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
+    //             Contacts.Phones.Add(new Phone() { IANAType = "cell", Number = value });
+    //         }
+    //     }
+    // }
 
     public bool IsBlocked
     {
