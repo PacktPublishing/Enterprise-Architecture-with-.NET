@@ -17,6 +17,7 @@ This is of course not to say that I am against code improvements and I will be m
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
 - Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
 - Branch [v0.2](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.2/DemoEditor) adds the **authentication and authorization management** to the application (both frontend and backend) using a Keycloak IAM server. It also adds the batch import of data, using a Docker volume.
+- Branch [v0.3](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.3/DemoEditor) .
 - Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation).
 
 ## Prerequisites
@@ -70,6 +71,8 @@ The content should be like follows (the ports are the one inside Docker Compose,
 8. In this new mapper, activate the `Add to ID token` setting.
 10. Add a `francesca` user.
 11. Assign this account the `director` role.
+
+Note that an export of the realm settings is provided in the `resources` folder, to speed up the process. In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
 
 ## Injecting some data
 
