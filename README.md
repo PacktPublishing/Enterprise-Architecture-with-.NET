@@ -4,7 +4,7 @@ This repository contains all the files associated with the book `Enterprise Arch
 
 ## DemoEditor
 
-The most important folder is the one with the sample application the book is written around. In order to help the readers follow the example, the application is presented in several successive versions, each being based on the previous one and adding some more complexity. Github branches are used for readers to be able to quickly shift from one version to another. The `README.md` file inside the `DemoEditor` folder adjusts to each version with the prerequisites and install operations to be realized.
+The most important folder is the one with the sample application the book is written around. In order to help the readers follow the example, the application is presented in several successive versions, each being based on the previous one and adding some more complexity. Github branches are used for readers to be able to quickly shift from one version to another. The `README.md` file inside the [DemoEditor](./DemoEditor/) folder adjusts to each version with the prerequisites and install operations to be realized.
 
 **DemoEditor** is the arbitrary name chosen for a company that would create a modern Information System based on its legacy applications and design it following the method presented in the book, with a strict separation of responsibility and being largely based on existing norms and standards.
 
