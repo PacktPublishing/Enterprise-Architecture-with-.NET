@@ -16,7 +16,7 @@ This is of course not to say that I am against code improvements and I will be m
 
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
 - Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
-- Branch [v0.2](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.2/DemoEditor) adds the authentication and authorization management to the application (both frontend and backend) using a Keycloak IAM server. It also adds the batch import of data, using a Docker volume.
+- Branch [v0.2](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.2/DemoEditor) adds the **authentication and authorization management** to the application (both frontend and backend) using a Keycloak IAM server. It also adds the batch import of data, using a Docker volume.
 - Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation).
 
 ## Prerequisites
@@ -111,6 +111,10 @@ Going to `http://portal:88` should provide the following interface (if an error 
 
 ![](images/Welcome.png)
 
+Most menus are invisible, until you click on `Log in` and connect using the `francesca` user that has been created above, and who have most accesses, owing to her `director` role:
+
+![](images/Login.png)
+
 Clicking on the `Books` menu brings you to the list of books in the dedicated service:
 
 ![](images/Books.png)
@@ -127,4 +131,8 @@ This interface allows you to edit authors with the auto-patch method (see the bo
 
 ![](images/AuthorAutoPatch.png)
 
-And that's about all you can do with this first, very limited, version. But its architecture is done in such a way that it is going to be easy for the system to follow business-led evolutions (this is the main subject of the book).
+If you log out, create a user with a simple `editor` role, which provides fewer accesses (or even `author`, which has almost no rights), then log in again using this new user, you will notice some menus do not appear. In addition, trying to enter the URL directly will not help and you will be rejected anyway:
+
+![](images/Unauthorized.png)
+
+And that's about it for this second version of the sample application. The evolution to a secured system has been realized without touching any of the business function, but that sounds logical. The real test of the architecture will be when adding some business-related features, which will be the subjects of the following versions (see other branches of the repository).

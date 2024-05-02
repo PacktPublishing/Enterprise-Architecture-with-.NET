@@ -16,19 +16,31 @@ public class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        builder.Services.AddScoped(sp => new HttpClient());
+        builder.Services
+            .AddHttpClient("BooksAPI", client => client.BaseAddress = new Uri("http://books:81/Books/"))
+            .AddHttpMessageHandler(x => {
+                var handler = x.GetRequiredService<AuthorizationMessageHandler>()
+                    .ConfigureHandler(new[] { "http://books:81" });
+                return handler;
+            });
 
-        // builder.Services.AddOidcAuthentication(options =>
-        // {
-        //     builder.Configuration.Bind("Local", options.ProviderOptions);
-        //     // These two lines are commented out because the line above gets the values from the .json configuration
-        //     // options.ProviderOptions.Authority = "http://iam:8080/realms/demoeditor/";
-        //     // options.ProviderOptions.ClientId = "portal";
-        //     options.UserOptions.RoleClaim = "realm_access.roles";
-        // });
+        builder.Services
+            .AddHttpClient("AuthorsAPI", client => client.BaseAddress = new Uri("http://authors:82/Authors/"))
+            .AddHttpMessageHandler(x => {
+                var handler = x.GetRequiredService<AuthorizationMessageHandler>()
+                    .ConfigureHandler(new[] { "http://authors:82" });
+                return handler;
+            });
 
-        // // This is used for the roles to be taken into account when displaying some menus or allowing access to pages
-        // builder.Services.AddApiAuthorization().AddAccountClaimsPrincipalFactory<RolesClaimsPrincipalFactory>();
+        builder.Services.AddOidcAuthentication(options =>
+        {
+            options.ProviderOptions.Authority = "http://iam:8080/realms/demoeditor/";
+            options.ProviderOptions.ClientId = "portal";
+            options.ProviderOptions.ResponseType = "code";
+            options.UserOptions.RoleClaim = "realm_access.roles";
+        });
+
+        builder.Services.AddApiAuthorization().AddAccountClaimsPrincipalFactory<RolesClaimsPrincipalFactory>();
 
         await builder.Build().RunAsync();
     }

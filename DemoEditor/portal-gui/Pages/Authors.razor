@@ -1,6 +1,7 @@
 @page "/authors"
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
+@attribute [Authorize(Roles = "editor")]
+@inject IHttpClientFactory HttpFactory
 @inject NavigationManager Navigator
 
 <PageTitle>Authors</PageTitle>
@@ -88,23 +89,27 @@ else
 
     private DTO.Author[]? AuthorsList;
 
+    private HttpClient client = null;
+
     protected override async Task OnInitializedAsync()
     {
-        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
+        client = HttpFactory.CreateClient("AuthorsAPI");
+
+        TotalNumberOfAuthors = await client.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
 
-        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + PageSize);
+        AuthorsList = await client.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + PageSize);
     }
 
     protected async Task SelectedPage(int page)
     {
-        TotalNumberOfAuthors = await Http.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
+        TotalNumberOfAuthors = await client.GetFromJsonAsync<int>(@"http://authors:82/Authors/$count");
         TotalPages = (int)Math.Ceiling((decimal)TotalNumberOfAuthors / PageSize);
 
         CurrentPage = page;
         int top = PageSize;
         int skip = PageSize * (page - 1);
-        AuthorsList = await Http.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + top + "&$skip=" + skip);
+        AuthorsList = await client.GetFromJsonAsync<DTO.Author[]>(@"http://authors:82/Authors?$top=" + top + "&$skip=" + skip);
 
         InvokeAsync(StateHasChanged);
     }

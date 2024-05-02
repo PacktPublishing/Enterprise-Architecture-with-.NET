@@ -14,15 +14,15 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        @* <AuthorizeView>
-            <Authorized> *@
-                @* <div class="nav-item px-3">
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
                     <NavLink class="nav-link" href="identity">
                         <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Identity
                     </NavLink>
-                </div> *@
-                @* @if (context.User.IsInRole("editor"))
-                { *@
+                </div>
+                @if (context.User.IsInRole("editor"))
+                {
                     <div class="nav-item px-3">
                         <NavLink class="nav-link" href="books">
                             <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Books
@@ -33,17 +33,17 @@
                             <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Authors
                         </NavLink>
                     </div>
-                @* }
+                }
                 @if (context.User.IsInRole("director"))
-                { *@
-                    @* <div class="nav-item px-3">
+                {
+                    <div class="nav-item px-3">
                         <NavLink class="nav-link" href="sales">
                             <span class="bi bi-currency-dollar-nav-menu" aria-hidden="true"></span> Sales
                         </NavLink>
-                    </div> *@
-                @* } *@
-            @* </Authorized>
-        </AuthorizeView> *@
+                    </div>
+                }
+            </Authorized>
+        </AuthorizeView>
     </nav>
 </div>
 

@@ -1,7 +1,8 @@
 @page "/author/"
 @page "/author/{id}"
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
+@attribute [Authorize(Roles = "editor")]
+@inject IHttpClientFactory HttpFactory
 @inject NavigationManager Navigator
 
 <PageTitle>Author</PageTitle>
@@ -85,17 +86,21 @@
 
     private DTO.Author? CurrentAuthor = new DTO.Author();
 
+    private HttpClient client = null;
+
     protected override async Task OnInitializedAsync()
     {
+        client = HttpFactory.CreateClient("AuthorsAPI");
+
         if (id != null)
         {
-            CurrentAuthor = await Http.GetFromJsonAsync<DTO.Author>(@"http://authors:82/Authors/" + id);
+            CurrentAuthor = await client.GetFromJsonAsync<DTO.Author>(@"http://authors:82/Authors/" + id);
         }
     }
 
     protected async void Save()
     {
-        await Http.PostAsJsonAsync<DTO.Author>(@"http://authors:82/Authors/", CurrentAuthor);
+        await client.PostAsJsonAsync<DTO.Author>(@"http://authors:82/Authors/", CurrentAuthor);
         if (id == null)
         {
             Navigator.NavigateTo("/authors");

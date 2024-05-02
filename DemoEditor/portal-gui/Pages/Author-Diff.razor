@@ -1,7 +1,8 @@
 @page "/authordiff/{id}"
 @using Microsoft.AspNetCore.Authorization
-@inject HttpClient Http
- 
+@attribute [Authorize(Roles = "editor")]
+@inject IHttpClientFactory HttpFactory
+
 <PageTitle>Author (autopatch)</PageTitle>
  
 @if (currentAuthor == null || authorContext == null)
@@ -88,10 +89,14 @@ else
  
     private EditContext authorContext;
  
+    private HttpClient client = null;
+
     protected override async Task OnInitializedAsync()
     {
+        client = HttpFactory.CreateClient("AuthorsAPI");
+
         if (id == null) return;
-        currentAuthor = await Http.GetFromJsonAsync<DTO.Author>("http://authors:82/Authors/" + id);
+        currentAuthor = await client.GetFromJsonAsync<DTO.Author>("http://authors:82/Authors/" + id);
         authorContext = new EditContext(currentAuthor);
         authorContext.OnFieldChanged += Modification;
     }
@@ -137,6 +142,6 @@ else
         if (e.FieldIdentifier.FieldName == "IsBlocked")
             jsonPatch = "[{\"op\": \"replace\", \"path\": \"restriction\", \"value\": \"" + currentAuthor.Restriction + "\"}]";
         var content = new StringContent(jsonPatch, System.Text.Encoding.UTF8, "application/json");
-        await Http.PatchAsync("http://authors:82/Authors/" + currentAuthor.EntityId, content);
+        await client.PatchAsync("http://authors:82/Authors/" + currentAuthor.EntityId, content);
     }    
 }
