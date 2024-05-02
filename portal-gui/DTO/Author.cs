@@ -30,6 +30,51 @@ public class Author
         }
     }
 
+    public string? FirstPhoneNumber
+    {
+        get
+        {
+            // if (Contacts == null) Contacts = new ContactsPetal();
+            // if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
+            // if (Contacts.Phones.Count() == 0) Contacts.Phones.Add(new Phone() { IANAType = "home" });
+            // return Contacts.Phones.First().Number;
+
+            Phone home = SortedPhones.FirstOrDefault();
+            if (home != null) return home.Number;
+            return "N/A";
+        }
+        set
+        {
+            Phone home = SortedPhones.FirstOrDefault();
+            if (home != null) home.Number = value;
+            else
+            {
+                if (Contacts == null) Contacts = new ContactsPetal();
+                if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
+                Contacts.Phones.Add(new Phone() { IANAType = "home", Number = value });
+            }
+        }
+    }
+
+    public string? SecondPhoneNumber
+    {
+        get
+        {
+            if (SortedPhones.Count() < 2) return "N/A";
+            return SortedPhones[1].Number;
+        }
+        set
+        {
+            if (Contacts == null) Contacts = new ContactsPetal();
+            if (Contacts.Phones == null) Contacts.Phones = new List<Phone>();
+            if (Contacts.Phones.Count() == 0)
+                Contacts.Phones.Add(new Phone() { IANAType = "home", Number = "N/A" });
+            if (Contacts.Phones.Count() == 1)
+                Contacts.Phones.Add(new Phone() { IANAType = "cell", Number = value });
+            SortedPhones[1].Number = value;
+        }
+    }
+
     private static int ConvertIANATypeToPriority(string IANAType)
     {
         // Gives the order in which the types of phones will be displayed

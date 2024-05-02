@@ -32,14 +32,14 @@ else
             {
                 <div class="col-md-6">
                     <label for="firstPhone" class="form-label">@currentAuthor.SortedPhones[0].IANAType phone</label>
-                    <InputText class="form-control" id="firstPhone" @bind-Value="currentAuthor.SortedPhones[0].Number" />
+                    <InputText class="form-control" id="firstPhone" @bind-Value="currentAuthor.FirstPhoneNumber" />
                 </div>
             }
             @if (currentAuthor.SortedPhones.Count() > 1)
             {
                 <div class="col-md-6">
                     <label for="secondPhone" class="form-label">@currentAuthor.SortedPhones[1].IANAType phone</label>
-                    <InputText class="form-control" id="secondPhone" @bind-Value="currentAuthor.SortedPhones[1].Number" />
+                    <InputText class="form-control" id="secondPhone" @bind-Value="currentAuthor.SecondPhoneNumber" />
                 </div>
             }
             <div class="col-3">
@@ -99,13 +99,14 @@ else
     private async void Modification(object sender, FieldChangedEventArgs e)
     {
         string path = e.FieldIdentifier.FieldName;
+        Console.WriteLine("champ modifié : " + path);
         switch (e.FieldIdentifier.FieldName)
         {
-            case "HomePhone":
-                path = "/Contacts/Phones[IANAType='home']/Number";
+            case "FirstPhoneNumber":
+                path = "/Contacts/Phones/0/Number";
                 break;
-            case "MobilePhone":
-                path = "/Contacts/Phones[IANAType='cell']/Number";
+            case "SecondPhoneNumber":
+                path = "/Contacts/Phones/1/Number";
                 break;
             case "StreetNumber":
             case "StreetName":
