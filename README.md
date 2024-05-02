@@ -1,37 +1,29 @@
 # Enterprise Architecture with .NET
-Enterprise Architecture with .NET, published by Packt
 
-## Content
-This repository contains the sample application used in the Packt book
+This repository contains all the files associated with the book `Enterprise Architecture with .NET`, published by Packt. This book aims at providing a method to create industrial-grade Information Systems that will stay easy to evolve in time, owing to a business/IT alignment method and the use of modularization of services and standardization.
 
-## Installation
-Example exposed on localhost to avoid HTTPS setup complexities (any real domain, even when simply aliased in the hosts file, would trigger HTTPS redirection on modern browsers)
-127.0.0.1 iam
-127.0.0.1 portal
-127.0.0.1 authors
-127.0.0.1 books
+## DemoEditor
 
-## IAM
-Create a demoeditor realm
-Add author, editor and director realm roles
-Add a `francesca` user, with director role
-Create a client with ID `portal` and use default settings in the `Capability config` tab of the wizzard
-Add the login-callback, logout-callback and web origins for localhost, but also ports 81 and 82
-Add the realm role mapping to the portal-dedicated client scope + add to ID token
+The most important folder is the one with the sample application the book is written around. In order to help the readers follow the example, the application is presented in several successive versions, each being based on the previous one and adding some more complexity. Github tags are used for readers to be able to quickly shift from one version to another. The `README.md` file inside the `DemoEditor` folder adjusts to each version with the prerequisites and install operations to be realized.
 
-![Client settings](images/ClientSettings.png)
+**DemoEditor** is the arbitrary name chosen for a company that would create a modern Information System based on its legacy applications and design it following the method presented in the book, with a strict separation of responsibility and being largely based on existing norms and standards.
 
-(or use the file to import the realm)
+## OpenAPI
 
+Since an important part of standardization and business-alignment is implemented by contract-first, OpenAPI-compatible, APIs, the YAML definitions of such contracts are of particular importance and provided in a separate folder from the implementation, as they have their own lifecycle and versioning.
 
+## OPA-ABAC-Sample
 
-## Running portal
+The book explains how to separate Business Rules Management from the rest of the implementations of the APIs, and the files in this folder show how to realize such a separation using Open Policy Agent (https://www.openpolicyagent.org/).
 
-If you have a 404, change port to another, like 88 (do not forget to adjust CORS settings in books and authors)
+## OPA-SpecFlowTests
 
+Automated tests using a Behaviour-Driven Design approach complements the Open Policy Agent implementation, and are provided in a dedicated folder, as a SpecFlow-based project (https://specflow.org/ for more details).
 
-https://code-maze.com/using-access-token-with-blazor-webassembly-httpclient/
+## BPMN
 
-If you have WASM hosted then you'd be better off using BFF (Backend for Frontend) and sticking to Cookies with Samesite. This below video explains the pattern and why tokens are not a good approach in a new app. (https://www.youtube.com/watch?v=DdNssiaIY_Q)
+This folder contains the exports of a few business processes used as examples. The `.bpmn` files can be opened with any BPMN 2.0 compatible editor, for example https://demo.bpmn.io/.
 
+## CMISTestClient
 
+A small .NET client that shows how to use CMIS standard to access an Electronic Document Management system.
