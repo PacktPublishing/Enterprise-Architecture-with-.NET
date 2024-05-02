@@ -2,7 +2,7 @@ namespace DTO;
 
 public class CountryLink : Link
 {
-    public string ISOCode { get; set; }
+    public string? ISOCode { get; set; }
 }
 
 public class Link

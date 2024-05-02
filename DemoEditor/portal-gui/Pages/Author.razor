@@ -61,7 +61,7 @@
         </div>
         <div class="col-4">
             <label for="inputState" class="form-label">Country</label>
-            <InputSelect id="inputState" class="form-select" @bind-Value="CurrentAuthor.MainAddress.Country.ISOCode">
+            <InputSelect id="inputState" class="form-select" @bind-Value="CurrentAuthor.MainAddress.Country.ISOCode ">
                 <option selected>Choose...</option>
                 <option value="FRA">France</option>
                 <option value="IND">India</option>
@@ -100,6 +100,25 @@
 
     protected async void Save()
     {
+        if (id == null)
+        {
+            CurrentAuthor.EntityId = Guid.NewGuid().ToString("N");
+        }
+        if (string.IsNullOrEmpty(CurrentAuthor.MainAddress.Country.ISOCode))
+        {
+            CurrentAuthor.MainAddress.Country = null;
+        }
+        else
+        {
+            CurrentAuthor.MainAddress.Country.Href = "/api/authors/params/countryCodes/" + CurrentAuthor.MainAddress.Country.ISOCode;
+            CurrentAuthor.MainAddress.Country.Rel = "addressCountry";
+            switch (CurrentAuthor.MainAddress.Country.ISOCode)
+            {
+                case "FRA": CurrentAuthor.MainAddress.Country.Title = "France"; break;
+                case "IND": CurrentAuthor.MainAddress.Country.Title = "India"; break;
+                case "USA": CurrentAuthor.MainAddress.Country.Title = "USA"; break;
+            }
+        }
         await client.PostAsJsonAsync<DTO.Author>(@"http://authors:82/Authors/", CurrentAuthor);
         if (id == null)
         {
