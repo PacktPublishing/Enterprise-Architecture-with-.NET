@@ -4,8 +4,29 @@ services:
     image: mongo:4.4
     networks:
       - back
+  dbgui:
+    image: mongo-express:1.0.2
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME=forster
+      - ME_CONFIG_BASICAUTH_PASSWORD=gOU89tRF05
+      - ME_CONFIG_MONGODB_SERVER=db
+    networks:
+      - back
+  iam:
+    image: quay.io/keycloak/keycloak:23.0.7
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_ADMIN=forster
+      - KEYCLOAK_ADMIN_PASSWORD=4AFXbm5vX7YFjN0rMYKK
+    command: start-dev
+    networks:
+      - front
+      - back
   books:
-    image: demoeditor/books-api:0.1
+    image: demoeditor/books-api:0.2
     build:
       context: ./books-controller
       dockerfile: Dockerfile
@@ -14,8 +35,10 @@ services:
     networks:
       - front
       - back
+    volumes:
+      - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.1
+    image: demoeditor/authors-api:0.2
     build:
       context: ./authors-controller
       dockerfile: Dockerfile
@@ -25,7 +48,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.1
+    image: demoeditor/portal-gui:0.2
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
@@ -36,3 +59,6 @@ services:
 networks:
   front:
   back:
+volumes:
+  import:
+    driver: local
