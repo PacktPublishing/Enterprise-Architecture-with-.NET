@@ -13,7 +13,7 @@ public class EditorAuthorizationHandler : AuthorizationHandler<EditorRequirement
         AuthorizationHandlerContext context, 
         EditorRequirement requirement)
     {
-        foreach (var role in context.User.Claims.Where(claim => claim.Type == "user_roles"))
+        foreach (var role in context.User.Claims.Where(claim => claim.Type == "realm_roles"))
         {
             if (role.Value == "editor") context.Succeed(requirement);
             if (role.Value == "director") context.Succeed(requirement);

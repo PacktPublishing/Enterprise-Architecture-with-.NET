@@ -12,28 +12,22 @@ using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// builder.Services.AddAuthentication().AddJwtBearer(options => {
-//     options.RequireHttpsMetadata = false;
-//     options.MetadataAddress = "http://iam:8080/realms/demoeditor/.well-known/openid-configuration";
-//     options.TokenValidationParameters = new TokenValidationParameters
-//     {
-//         RoleClaimType = "groups",
-//         ValidateAudience = false, // do not forget to refresh authentication when changing this
-//         // https://stackoverflow.com/questions/60306175/bearer-error-invalid-token-error-description-the-issuer-is-invalid
-//         ValidateIssuer = false,
-//     };
-// });
-// builder.Services.AddAuthorization();
-
-//builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>(); // TODO : should normally not be useful anymore once passed to realm-level roles
-//builder.Services.AddSingleton<IAuthorizationHandler, EditorAuthorizationHandler>();
-
-// builder.Services.AddAuthorization(o =>
-// {
-//     o.AddPolicy("author", policy => policy.RequireClaim("user_roles", "author"));
-//     o.AddPolicy("editor", policy => policy.Requirements.Add(new EditorRequirement()));
-//     o.AddPolicy("director", policy => policy.RequireClaim("user_roles", "director"));
-// });
+builder.Services.AddAuthentication().AddJwtBearer(options => {
+    options.RequireHttpsMetadata = false;
+    options.MetadataAddress = "http://iam:8080/realms/demoeditor/.well-known/openid-configuration";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateAudience = false, // do not forget to refresh authentication when changing this
+        ValidateIssuer = false,
+    };
+});
+builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
+builder.Services.AddSingleton<IAuthorizationHandler, EditorAuthorizationHandler>();
+builder.Services.AddAuthorization(o => {
+    o.AddPolicy("author", policy => policy.RequireClaim("realm_roles", "author"));
+    o.AddPolicy("editor", policy => policy.Requirements.Add(new EditorRequirement()));
+    o.AddPolicy("director", policy => policy.RequireClaim("realm_roles", "director"));
+});
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -58,8 +52,8 @@ app.UseCors(options => options.WithOrigins("http://portal", "http://portal:88").
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

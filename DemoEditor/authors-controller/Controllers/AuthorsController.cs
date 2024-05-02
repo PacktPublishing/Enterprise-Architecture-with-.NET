@@ -9,7 +9,7 @@ using authors_controller.Tools;
 
 namespace authors_controller.Controllers;
 
-//[Authorize(Policy = "editor")]
+[Authorize(Policy = "editor")]
 [ApiController]
 [Route("[controller]")]
 public class AuthorsController : ControllerBase

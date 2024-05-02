@@ -16,6 +16,7 @@ This is of course not to say that I am against code improvements and I will be m
 
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
 - Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
+- Branch [v0.2](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.2/DemoEditor) adds the authentication and authorization management to the application (both frontend and backend) using a Keycloak IAM server. It also adds the batch import of data, using a Docker volume.
 - Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation).
 
 ## Prerequisites
@@ -41,7 +42,7 @@ If you use the command line to retrieve the necessary files (you may also downlo
 
 ```
 git clone https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET
-git checkout v0.1
+git checkout v0.2
 ```
 
 Running the application is then as simple as launching Docker Compose on the right file:
@@ -50,6 +51,25 @@ Running the application is then as simple as launching Docker Compose on the rig
 cd DemoEditor
 docker compose up -d
 ```
+
+## Defining IAM
+
+The Identity and Authorization Management server (Apache Keycloak, in our case) has been activated in the Docker Compose service for this version, and must be configured:
+1. Connect to http://iam:8080/admin/master/console/, using the credentials defined in the `docker-compose.yml` file.
+2. Create a realm called `demoeditor`.
+3. Add 3 realm roles, named `editor`, `director` and `author`.
+4. Create a client with `portal` as its id, and use default in the `Capability config` tab of the wizzard.
+5. In the following step, add the login-callback, logout-callback and web origins for localhost, but also ports 81 and 82.
+
+The content should be like follows (the ports are the one inside Docker Compose, not the exposed ones):
+
+![](images/ClientSettings.png)
+
+6. Click the `portal-dedicated` link in the `Client scopes` tab.
+7. Add the predefined mapper called `realm roles`.
+8. In this new mapper, activate the `Add to ID token` setting.
+10. Add a `francesca` user.
+11. Assign this account the `director` role.
 
 ## Injecting some data
 
@@ -64,6 +84,26 @@ Using the `DemoEditor` is needed to point correctly to the API implementations:
 The commands use the variables of the environment in order for you to quickly adapt to your own setting. I recommend you run at least the `Create author` and `Create book` operations:
 
 ![](images/CreateBook.png)
+
+Since we have activated authentication and authorization in this version, it is necessary to edit the `Authorization` parameters of the `DemoEditor` collection (all levels below inherit from it), and obtain an OAuth 2.0 token, with such a configuration to retrieve it from Keycloak (check the book for all details):
+
+![](images/PostmanToken.png)
+
+## Batch import of data
+
+Sending data by hand is not very effective, so we will take advantage of the `import` volume declared in the Docker Compose file and use the following command to load the Excel workbook provided in the folder called `resources` (note that all commands are provided Linux-style; if you are using Windows, please operate them through WSL):
+
+```
+docker run --rm -v ./resources/DemoEditor-BooksCatalog.xlsx:/tmp/DemoEditor-BooksCatalog.xlsx -v demoeditor_import:/tmp/data ubuntu cp /tmp/DemoEditor-BooksCatalog.xlsx /tmp/data
+```
+
+Once this is done, you may use the following Postman operation to integrate the content from the Excel workbook:
+
+![](images/Import.png)
+
+A GUI to inspect content of the MongoDB database is also provided in this version, with credentials visible in the `docker-compose.yml` file to connect to such an interface:
+
+![](images/DBGUI.png)
 
 ## Running the application
 

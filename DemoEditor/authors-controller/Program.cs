@@ -3,10 +3,31 @@ using Polly;
 using Polly.Extensions.Http;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddAuthentication().AddJwtBearer(options => {
+    options.RequireHttpsMetadata = false;
+    options.MetadataAddress = "http://iam:8080/realms/demoeditor/.well-known/openid-configuration";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateAudience = false, // do not forget to refresh authentication when changing this
+        ValidateIssuer = false,
+    };
+});
+builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
+builder.Services.AddSingleton<IAuthorizationHandler, EditorAuthorizationHandler>();
+builder.Services.AddAuthorization(o => {
+    o.AddPolicy("author", policy => policy.RequireClaim("realm_roles", "author"));
+    o.AddPolicy("editor", policy => policy.Requirements.Add(new EditorRequirement()));
+    o.AddPolicy("director", policy => policy.RequireClaim("realm_roles", "director"));
+});
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,6 +50,7 @@ app.UseCors(options => options.WithOrigins("http://portal", "http://portal:88").
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
