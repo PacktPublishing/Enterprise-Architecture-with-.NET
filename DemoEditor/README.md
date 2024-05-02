@@ -15,11 +15,12 @@ This is of course not to say that I am against code improvements and I will be m
 ## Versioning
 
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
-- Tag [v0.1.0](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/releases/tag/v0.1.0) correspond to a very simple form of the application, with only the two APIs working and a basic portal, both without any authentication mechanism in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
+- Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1) correspond to a very simple form of the application, with only the two APIs working and a basic portal, both without any authentication mechanism in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
+- Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET) is the most up-to-date version of the application, with maximum content, including applications from all chapters of the book (and thus highest level of complexity for a full installation).
 
 ## Prerequisites
 
-Docker has been used in order to reduce as much as possible the required tooling. Since all images are available online (even the custom ones created for the sample information system, available at `https://hub.docker.com/repositories/demoeditor`), all you need to work with the application is Docker (see https://docs.docker.com/engine/install/ for installation instructions).
+Docker has been used in order to reduce as much as possible the required tooling. Since all images are available online (even the custom ones created for the sample information system, available at `https://hub.docker.com/repositories/demoeditor`), all you need to work with the application is Docker (see https://docs.docker.com/engine/install/ for installation instructions). The images versions follow the branches of the code.
 
 If you want to debug the application, make some changes to it in order to follow the instructions from the book, then you will also need .NET 8.0 SDK (https://dotnet.microsoft.com/download), Visual Studio Code (https://code.visualstudio.com/download), and Git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Postman (https://www.postman.com/) will also be used as an option to quickly inject data.
 
@@ -40,7 +41,7 @@ If you use the command line to retrieve the necessary files (you may also downlo
 
 ```
 git clone https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET
-git checkout v0.1.0
+git checkout v0.1
 ```
 
 Running the application is then as simple as launching Docker Compose on the right file:
