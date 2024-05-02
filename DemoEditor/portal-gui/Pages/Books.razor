@@ -75,7 +75,5 @@ else
         int top = PageSize;
         int skip = PageSize * (page - 1);
         books = await client.GetFromJsonAsync<DTO.Book[]>(@"http://books:81/Books?$top=" + top + "&$skip=" + skip);
-
-        InvokeAsync(StateHasChanged); // TODO : check usefulness
     }
 }
