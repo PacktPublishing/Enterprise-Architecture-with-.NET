@@ -15,8 +15,8 @@ This is of course not to say that I am against code improvements and I will be m
 ## Versioning
 
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
-- Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) correspond to a very simple form of the application, with only the two APIs working and a basic portal, both without any authentication mechanism in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
-- Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with maximum content, including applications from all chapters of the book (and thus highest level of complexity for a full installation).
+- Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
+- Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation).
 
 ## Prerequisites
 
