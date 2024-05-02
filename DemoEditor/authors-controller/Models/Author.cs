@@ -5,6 +5,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 
+namespace authors_controller.Models;
+
 public class Author : ICloneable
 {
     [BsonId()]

@@ -1,6 +1,8 @@
 using System.Net;
 using Polly;
 using Polly.Extensions.Http;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("authors_controller.Models") || type.FullName.StartsWith("Newtonsoft."));
+BsonSerializer.RegisterSerializer(objectSerializer);
 
 app.Run();
 

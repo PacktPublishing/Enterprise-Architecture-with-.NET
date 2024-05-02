@@ -1,5 +1,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 
+namespace books_controller.Models;
+
 public class Link
 {
     [BsonElement("rel")]

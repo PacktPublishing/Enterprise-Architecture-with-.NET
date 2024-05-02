@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using books_controller.Models;
 
 namespace books_controller.Controllers;
 

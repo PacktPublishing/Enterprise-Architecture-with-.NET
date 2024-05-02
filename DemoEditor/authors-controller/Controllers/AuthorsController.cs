@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
+using authors_controller.Models;
 using authors_controller.Tools;
 
 namespace authors_controller.Controllers;

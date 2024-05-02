@@ -5,6 +5,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 
+namespace books_controller.Models;
+
 // This class corresponds to an author as cached by the book referential
 // It may not contain all the data in the complete author model
 public class Author : ICloneable

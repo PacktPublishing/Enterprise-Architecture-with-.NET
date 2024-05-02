@@ -1,5 +1,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 
+namespace authors_controller.Models;
+
 public class ContactsPetal
 {
     [BsonElement("addresses")]

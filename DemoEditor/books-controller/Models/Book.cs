@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
+namespace books_controller.Models;
+
 public class Book
 {
     [BsonId()]
@@ -30,5 +32,5 @@ public class Book
     public EditingPetal? Editing { get; set; }
 
     [BsonElement("sales")]
-    public SalesPetal Sales { get; set; }
+    public SalesPetal? Sales { get; set; }
 }

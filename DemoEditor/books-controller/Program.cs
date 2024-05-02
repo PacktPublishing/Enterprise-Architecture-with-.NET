@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication;
 using books_controller;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //if (app.Environment.IsDevelopment())
-app.UseCors(options => options.WithOrigins("http://portal", "http://portal:88").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options => options.WithOrigins("http://portal", "http://portal:88").AllowAnyMethod().AllowAnyHeader().SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
 
 app.UseHttpsRedirection();
 
@@ -60,6 +62,9 @@ app.UseHttpsRedirection();
 // app.UseAuthorization();
 
 app.MapControllers();
+
+var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("books_controller.Models") || type.FullName.StartsWith("Newtonsoft."));
+BsonSerializer.RegisterSerializer(objectSerializer);
 
 app.Run();
 
