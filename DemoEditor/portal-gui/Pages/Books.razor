@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigator
 
 <PageTitle>Books</PageTitle>
 
@@ -14,6 +15,10 @@
 }
 else
 {
+    <div>
+        <button @onclick="CreateNewBook" title="Add book">Start project for a new book</button>
+    </div>
+
     <div class="container">
     @foreach (var book in books)
     {
@@ -75,5 +80,10 @@ else
         int top = PageSize;
         int skip = PageSize * (page - 1);
         books = await client.GetFromJsonAsync<DTO.Book[]>(@"http://books:81/Books?$top=" + top + "&$skip=" + skip);
+    }
+
+    private void CreateNewBook()
+    {
+        Navigator.NavigateTo("/book/");
     }
 }

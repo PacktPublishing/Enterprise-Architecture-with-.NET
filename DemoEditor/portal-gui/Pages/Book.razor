@@ -1,0 +1,62 @@
+@page "/book/"
+@page "/book/{id}"
+@using Microsoft.AspNetCore.Authorization
+@*@attribute [Authorize(Roles = "editor")]*@
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigator
+
+<PageTitle>Book</PageTitle>
+
+<div>
+    <EditForm OnSubmit="Save" Model="CurrentBook" class="row g-3">
+        <h2>
+            <span>Step 1: defining the project</span>
+            @if (!DisableStep1) { <span><b> (CURRENT STEP)</b></span> }
+        </h2>
+        <div class="col-md-6">
+            <label for="bookTitle" class="form-label">Title</label>
+            <InputText disabled='@DisableStep1' class="form-control" id="bookTitle" @bind-Value="CurrentBook.Title" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Save</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+
+    private DTO.Book? CurrentBook = new DTO.Book();
+
+    private HttpClient client = null;
+
+    private bool DisableStep1
+    {
+        get { return CurrentBook.Editing is not null 
+            && CurrentBook.Editing.Status is not null 
+            && !string.IsNullOrEmpty(CurrentBook.Editing.Status.Value)
+            && CurrentBook?.Editing?.Status.Value != "draft"; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpFactory.CreateClient("BooksAPI");
+
+        if (id != null)
+        {
+            CurrentBook = await client.GetFromJsonAsync<DTO.Book>(@"http://books:81/Books/" + id);
+        }
+    }
+
+    protected async void Save()
+    {
+        if (id == null)
+        {
+            CurrentBook.EntityId = Guid.NewGuid().ToString("N");
+        }
+        await client.PostAsJsonAsync<DTO.Book>(@"http://books:81/Books/", CurrentBook);
+        if (id == null)
+        {
+            Navigator.NavigateTo("/books");
+        }
+    }
+}
