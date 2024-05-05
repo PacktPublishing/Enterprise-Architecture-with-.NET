@@ -8,7 +8,7 @@
 <PageTitle>Book</PageTitle>
 
 <div>
-    <EditForm OnSubmit="Save" Model="CurrentBook" class="row g-3">
+    <EditForm OnSubmit="HandleSubmit" EditContext="context" class="row g-3">
         <h2>
             <span>Step 1: defining the project</span>
             @if (!DisableStep1) { <span><b> (CURRENT STEP)</b></span> }
@@ -16,6 +16,7 @@
         <div class="col-md-6">
             <label for="bookTitle" class="form-label">Title</label>
             <InputText disabled='@DisableStep1' class="form-control" id="bookTitle" @bind-Value="CurrentBook.Title" />
+            <ValidationMessage For="() => CurrentBook.Title" class="text-danger d-block" />
         </div>
         <button type="submit" class="btn btn-primary btn-lg">Save</button>
     </EditForm>
@@ -24,6 +25,10 @@
 @code {
     [Parameter]
     public string? id { get; set; }
+
+    private EditContext context;
+
+    private ValidationMessageStore validationMessages;
 
     private DTO.Book? CurrentBook = new DTO.Book();
 
@@ -40,23 +45,39 @@
     protected override async Task OnInitializedAsync()
     {
         client = HttpFactory.CreateClient("BooksAPI");
-
         if (id != null)
         {
             CurrentBook = await client.GetFromJsonAsync<DTO.Book>(@"http://books:81/Books/" + id);
         }
+        context = new EditContext(CurrentBook);
+        validationMessages = new(context);
     }
 
-    protected async void Save()
+    protected async void HandleSubmit()
     {
-        if (id == null)
+        bool valid = false;
+        var titleField = context.Field(nameof(CurrentBook.Title));
+        validationMessages.Clear(titleField);
+        if (string.IsNullOrEmpty(CurrentBook.Title) || CurrentBook.Title.Length < 10)
         {
-            CurrentBook.EntityId = Guid.NewGuid().ToString("N");
+            validationMessages.Add(titleField, "Title cannot be empty or shorter than 10 characters");
         }
-        await client.PostAsJsonAsync<DTO.Book>(@"http://books:81/Books/", CurrentBook);
-        if (id == null)
+        else
         {
-            Navigator.NavigateTo("/books");
+            valid = true;
+        }
+
+        if (valid) 
+        {
+            if (id == null)
+            {
+                CurrentBook.EntityId = Guid.NewGuid().ToString("N");
+            }
+            await client.PostAsJsonAsync<DTO.Book>(@"http://books:81/Books/", CurrentBook);
+            if (id == null)
+            {
+                Navigator.NavigateTo("/books");
+            }
         }
     }
 }
