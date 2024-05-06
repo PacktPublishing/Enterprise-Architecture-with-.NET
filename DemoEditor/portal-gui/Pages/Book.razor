@@ -3,11 +3,12 @@
 @using Microsoft.AspNetCore.Authorization
 @*@attribute [Authorize(Roles = "editor")]*@
 @inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigator
 
 <PageTitle>Book</PageTitle>
 
 <div>
-    <EditForm OnSubmit="HandleSubmit" EditContext="context" class="row g-3">
+    <EditForm EditContext="context" class="row g-3">
         <h2>
             <span>Step 1 [draft]: defining the project</span>
             @if (IsCurrentStep("draft")) { <span><b> (CURRENT STEP)</b></span> }
@@ -23,7 +24,7 @@
             <InputText disabled='@(!IsCurrentStep("draft"))' class="form-control" id="techno" @bind-Value="currentBook.MainTechnoTag" />
         </div>
         <div>
-            <span><button type="submit" class="btn btn-primary">Save</button></span>
+            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
             <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
         </div>
 
@@ -78,7 +79,7 @@
             <ValidationMessage For="() => currentBook.MainAuthorId" class="text-danger d-block" />
         </div>
         <div>
-            <span><button type="submit" class="btn btn-primary">Save</button></span>
+            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
             <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
         </div>
         
@@ -97,7 +98,7 @@
             <ValidationMessage For="() => currentBook.PublishDate" class="text-danger d-block" />
         </div>
         <div>
-            <span><button type="submit" class="btn btn-primary">Save</button></span>
+            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
             <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
         </div>
         
@@ -165,6 +166,7 @@
             if (currentBook.Editing.Status is null) currentBook.Editing.Status = new();
             if (string.IsNullOrEmpty(currentBook.Editing.Status.Value))
                 currentBook.Editing.Status.Value = "draft";
+            Navigator.NavigateTo("/book/" + currentBook.EntityId);
         }
         else
         {
