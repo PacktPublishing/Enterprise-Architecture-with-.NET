@@ -351,4 +351,18 @@ public class BooksController : ControllerBase
             return await Patch(book.EntityId, equivPatches, valueDate);
         }
     }
+
+    [Authorize(Policy = "director")]
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromQuery] bool confirmFullDeleteOfAllBooksIncludingHistory = false)
+    {
+        if (confirmFullDeleteOfAllBooksIncludingHistory)
+        {
+            // If this flag is activated (and it could be linked to a special authorization), the object is indeed deleted
+            await Database.GetCollection<ChangeUnit>("books-changes").DeleteManyAsync(item => true);
+            await Database.GetCollection<ObjectState<Book>>("books-states").DeleteManyAsync(item => true);
+            await Database.GetCollection<Book>("books-bestsofar").DeleteManyAsync(item => true);
+        }
+        return new OkResult();
+    }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
 
 namespace portal_gui;
 
@@ -41,6 +42,8 @@ public class Program
         });
 
         builder.Services.AddApiAuthorization().AddAccountClaimsPrincipalFactory<RolesClaimsPrincipalFactory>();
+
+        builder.Services.AddMudServices();
 
         await builder.Build().RunAsync();
     }

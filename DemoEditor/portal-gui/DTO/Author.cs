@@ -76,6 +76,11 @@ public class Author
         }
     }
 
+    public string Title
+    {
+        get { return FirstName + " " + LastName.ToUpper(); }
+    }
+
     private static int ConvertIANATypeToPriority(string IANAType)
     {
         // Gives the order in which the types of phones will be displayed

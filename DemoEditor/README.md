@@ -72,7 +72,7 @@ The content should be like follows (the ports are the one inside Docker Compose,
 10. Add a `francesca` user.
 11. Assign this account the `director` role.
 
-Note that an export of the realm settings is provided in the `resources` folder, to speed up the process. In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
+Note that an export of the realm settings is provided in the `resources` folder, to speed up the process (to import, browse the file when in the `create realm` command; you will need to re-create the users, though). In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
 
 ## Injecting some data
 
