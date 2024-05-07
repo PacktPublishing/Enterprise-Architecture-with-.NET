@@ -84,13 +84,65 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "[{\r\n    \"path\": \"/title\",\r\n    \"op\": \"replace\",\r\n    \"value\": \"Performance in .NET, Second Edition\"\r\n}]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BooksURL}}/Books/0024",
+							"host": [
+								"{{BooksURL}}"
+							],
+							"path": [
+								"Books",
+								"0024"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify book author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Title correctly modified\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.title).to.eql('Performance in .NET, Second Edition');\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json-patch+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[{\r\n    \"path\": \"/editing\",\r\n    \"op\": \"add\",\r\n    \"value\": {\r\n        \"mainAuthor\": {\r\n            \"href\": \"http://authors:82/Authors/jpgou\"\r\n        }\r\n    }\r\n}]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,6 +195,44 @@
 							"path": [
 								"Books",
 								"0024"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get health status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Book has the right entity identifier\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.entityId).to.eql('0024');\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BooksURL}}/Books/Status",
+							"host": [
+								"{{BooksURL}}"
+							],
+							"path": [
+								"Books",
+								"Status"
 							]
 						}
 					},
@@ -402,8 +492,7 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
@@ -768,12 +857,53 @@
 					"response": []
 				},
 				{
+					"name": "Delete all books permanently",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BooksURL}}/Books/?confirmFullDeleteOfAllBooksIncludingHistory=true",
+							"host": [
+								"{{BooksURL}}"
+							],
+							"path": [
+								"Books",
+								""
+							],
+							"query": [
+								{
+									"key": "confirmFullDeleteOfAllBooksIncludingHistory",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Import catalog",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{BooksURL}}/Books/Import?localFileAddress=/tmp/DemoEditor-BooksCatalog.xlsx",
+							"raw": "{{BooksURL}}/Books/Import?localFileAddress=/tmp/data/DemoEditor-BooksCatalog.xlsx",
 							"host": [
 								"{{BooksURL}}"
 							],
@@ -784,8 +914,34 @@
 							"query": [
 								{
 									"key": "localFileAddress",
-									"value": "/tmp/DemoEditor-BooksCatalog.xlsx"
+									"value": "/tmp/data/DemoEditor-BooksCatalog.xlsx"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Receive author cache",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"EntityId\": \"jpgou\",\r\n    \"FirstName\": \"Jean-Philippe\",\r\n    \"LastName\": \"Gouigoux\",\r\n    \"UserEmailAddress\": \"jp.gouigoux@frenchy.fr\",\r\n    \"Restriction\": \"none\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BooksURL}}/AuthorsCache",
+							"host": [
+								"{{BooksURL}}"
+							],
+							"path": [
+								"AuthorsCache"
 							]
 						}
 					},
@@ -844,6 +1000,53 @@
 					"response": []
 				},
 				{
+					"name": "Modify author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Book created with the right ISBN\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"entityId\": \"46c94dca02314491afc1ecd8fa03c39e\",\r\n    \"firstName\": \"Gaston\",\r\n    \"lastName\": \"Lagaffe\",\r\n    \"userEmailAddress\": \"gaston@dargaud.com\",\r\n    \"restriction\": \"none\",\r\n    \"contacts\": {\r\n        \"addresses\": [\r\n            {\r\n                \"streetNumber\": null,\r\n                \"streetName\": null,\r\n                \"cityName\": null,\r\n                \"zipCode\": null,\r\n                \"country\": {\r\n                    \"rel\": \"addressCountry\",\r\n                    \"href\": \"/api/authors/params/countryCodes/FRA\",\r\n                    \"title\": \"France\",\r\n                    \"isoCode\": \"FRA\"\r\n                }\r\n            }\r\n        ],\r\n        \"phones\": null\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{AuthorsURL}}/Authors/",
+							"host": [
+								"{{AuthorsURL}}"
+							],
+							"path": [
+								"Authors",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get author",
 					"event": [
 						{
@@ -882,6 +1085,86 @@
 					"response": []
 				},
 				{
+					"name": "Get authors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Book created with the right ISBN\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{AuthorsURL}}/Authors",
+							"host": [
+								"{{AuthorsURL}}"
+							],
+							"path": [
+								"Authors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search authors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Book created with the right ISBN\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.isbn).to.eql('978-2409002205');\r",
+									"});\r",
+									"pm.test(\"Response time is within limits\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{AuthorsURL}}/Authors?$filter=lastName eq 'Gouigoux' and firstName eq 'Jean-Philippe'",
+							"host": [
+								"{{AuthorsURL}}"
+							],
+							"path": [
+								"Authors"
+							],
+							"query": [
+								{
+									"key": "$filter",
+									"value": "lastName eq 'Gouigoux' and firstName eq 'Jean-Philippe'"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Patch author",
 					"event": [
 						{
@@ -909,8 +1192,7 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
@@ -943,7 +1225,7 @@
 		"oauth2": [
 			{
 				"key": "redirect_uri",
-				"value": "http://books:81/authentication/login-callback",
+				"value": "http://books:8080/authentication/login-callback",
 				"type": "string"
 			},
 			{
