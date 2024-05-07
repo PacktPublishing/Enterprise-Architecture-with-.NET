@@ -1,7 +1,7 @@
 @page "/book/"
 @page "/book/{id}"
 @using Microsoft.AspNetCore.Authorization
-@*@attribute [Authorize(Roles = "editor")]*@
+@attribute [Authorize(Roles = "editor")]
 @inject IHttpClientFactory HttpFactory
 @inject NavigationManager Navigator
 
@@ -189,13 +189,6 @@ else
         else
         {
             currentBook = await booksClient.GetFromJsonAsync<DTO.Book>(@"http://books:81/Books/" + id);
-            if (currentBook is null)
-                Console.WriteLine("Fail to retrieve Book " + id);
-            else
-            {
-                Console.WriteLine("Retrieved Book " + id);
-                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(currentBook));
-            }
         }
 
         context = new EditContext(currentBook);

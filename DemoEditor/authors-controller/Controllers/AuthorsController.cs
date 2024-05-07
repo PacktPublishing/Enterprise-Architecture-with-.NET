@@ -6,6 +6,7 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using authors_controller.Models;
 using authors_controller.Tools;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace authors_controller.Controllers;
 
@@ -20,24 +21,34 @@ public class AuthorsController : ControllerBase
 
     private readonly ILogger<AuthorsController> _logger;
 
-    private List<Uri> OnChangeCallbacks = new List<Uri>();
-
     private IHttpClientFactory _clientFactory;
 
-    public AuthorsController(IConfiguration config, ILogger<AuthorsController> logger, IHttpClientFactory clientFactory)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    private readonly IMemoryCache _memoryCache;
+
+    public AuthorsController(IConfiguration config, ILogger<AuthorsController> logger, IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache)
     {
         _logger = logger;
         _clientFactory = clientFactory;
+        _httpContextAccessor = httpContextAccessor;
+        _memoryCache = memoryCache;
         ConnectionString = config.GetValue<string>("AuthorsConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("authors");
     }
 
     [HttpPut]
     [Route("Subscribe")]
-    public IActionResult Subscribe([FromQuery] string callbackURL)
+    public IActionResult Subscribe([FromQuery] string callbackURL, [FromQuery(Name = "$filter")] string filter)
     {
         // Very naive implementation, without persistance
-        OnChangeCallbacks.Add(new Uri(callbackURL));
+        if (!filter.StartsWith("EntityId eq '")) throw new ArgumentException("Filter only supports EntityId");
+        string authorEntityId = filter.Substring(13).TrimEnd('\'');
+        if (!_memoryCache.TryGetValue("OnChangeCallbacks", out Dictionary<string, Uri> OnChangeCallbacks))
+            OnChangeCallbacks = new();
+        if (!OnChangeCallbacks.ContainsKey(authorEntityId))
+            OnChangeCallbacks.Add(authorEntityId, new Uri(callbackURL));
+        _memoryCache.Set("OnChangeCallbacks", OnChangeCallbacks);
         return Ok();
     }
 
@@ -76,22 +87,11 @@ public class AuthorsController : ControllerBase
                     queryFilter &= builder.Eq(x => x.FirstName, firstName);
             }
 
-Console.WriteLine("filter = " + filter);
-
             int posLastName = filter.IndexOf("lastName eq '");
-
-Console.WriteLine("posLastName = " + posLastName);
-
             if (posLastName > -1)
             {
                 int posEndLastName = filter.IndexOf("'", posLastName + 13);
-
-Console.WriteLine("posEndLastName = " + posEndLastName);
-
                 string lastName = filter.Substring(posLastName + 13, posEndLastName - posLastName - 13);
-
-Console.WriteLine("lastName = " + lastName);
-
                 if (queryFilter is null)
                     queryFilter = builder.Eq(x => x.LastName, lastName);
                 else
@@ -103,7 +103,6 @@ Console.WriteLine("lastName = " + lastName);
         var query = queryFilter is null
             ? Database.GetCollection<Author>("authors-bestsofar").Find(x => true)
             : Database.GetCollection<Author>("authors-bestsofar").Find(queryFilter);
-        //var query = Database.GetCollection<Author>("authors-bestsofar").Find(queryFilter);
         if (!string.IsNullOrEmpty(orderby))
         {
             string jsonSort = string.Empty;
@@ -245,18 +244,30 @@ Console.WriteLine("lastName = " + lastName);
             author
         );
 
-        // When sending author information to services that have registered on the webhook, a business rule states that no address should be communicated
-        Author strippedAuthor = (Author)author.Clone();
-        strippedAuthor.Contacts = null;
-
         // If all went well, we send the registered callbacks associated with the webhook for change events
         // No sophistication here, we simply send as a sequence, without error management, because eventual consistency is ensured some other way
         HttpClient? client = null;
-        foreach (Uri callback in OnChangeCallbacks)
+        if (!_memoryCache.TryGetValue("OnChangeCallbacks", out Dictionary<string, Uri> OnChangeCallbacks))
+            OnChangeCallbacks = new();
+        if (OnChangeCallbacks.ContainsKey(entityId))
         {
+            // When sending author information to services that have registered on the webhook, a business rule states that no address should be communicated
+            Author strippedAuthor = (Author)author.Clone();
+            strippedAuthor.Contacts = null;
+
+            // Client is only created if we have indeed a callback to execute, in order to spare resources
+            // Authentication is reused from the current API execution context; there may be better ways than copying the JWT
             if (client is null)
+            {
                 client = _clientFactory.CreateClient("Callbacks");
-            await client.PutAsJsonAsync<Author>(callback, strippedAuthor);
+                var httpContext = _httpContextAccessor.HttpContext;
+                var accessToken = Request.Headers["Authorization"];
+                string jwt = accessToken.ToString().Replace("Bearer ", "");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
+            }
+
+            // In order to be exactly compatible on the serialization, we use the dedicated model class (TODO: group all model classes in a library shared between the two APIs and even the client)
+            await client.PutAsJsonAsync<Author>(OnChangeCallbacks[entityId], strippedAuthor);
         }
 
         // Finally, the object is returned in order to show potential changes due to business rules

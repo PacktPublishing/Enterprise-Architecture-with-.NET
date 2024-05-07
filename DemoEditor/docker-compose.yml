@@ -26,7 +26,7 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.2
+    image: demoeditor/books-api:0.3
     build:
       context: ./books-controller
       dockerfile: Dockerfile
@@ -38,7 +38,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.2
+    image: demoeditor/authors-api:0.3
     build:
       context: ./authors-controller
       dockerfile: Dockerfile
@@ -48,7 +48,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.2
+    image: demoeditor/portal-gui:0.3
     build:
       context: ./portal-gui
       dockerfile: Dockerfile

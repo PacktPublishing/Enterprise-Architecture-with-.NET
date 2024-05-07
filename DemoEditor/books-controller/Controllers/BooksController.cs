@@ -29,9 +29,9 @@ public class BooksController : ControllerBase
     {
         _logger = logger;
         _clientFactory = clientFactory;
+        _httpContextAccessor = httpContextAccessor;
         ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
-        _httpContextAccessor = httpContextAccessor;
     }
 
     [Authorize(Policy = "director")]
@@ -70,14 +70,10 @@ public class BooksController : ControllerBase
                         ? ("lastName eq '" + titleFromImport + "'")
                         : ("firstName eq '" + titleFromImport.Substring(0, posSpace) + "' and lastName eq '" + titleFromImport.Substring(posSpace + 1) + "'");
 
-Console.WriteLine("filter for author search = " + filter);
-
                     Author[] authors = await client.GetFromJsonAsync<Author[]>("/Authors/?$filter=" + filter);
                     if (authors.Length > 0) 
                     {
                         // URLs are hardcoded in order to better explain what is done by the code
-Console.WriteLine("found author with EntityId = " + authors[0].EntityId);
-
                         b.Editing = new EditingPetal() {
                             mainAuthor = new AuthorLink() {
                                 Rel = "dc.creator",
@@ -180,7 +176,7 @@ Console.WriteLine("found author with EntityId = " + authors[0].EntityId);
 
                             // Then, the author is used in the expand but also updated in cache                            
                             book.Editing.mainAuthor.FullEntity = mainAuthor;
-                            await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").FindOneAndReplaceAsync<AuthorCache>(item => item.EntityId == mainAuthor.EntityId, new AuthorCache(mainAuthor));
+                            await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == mainAuthor.EntityId, new AuthorCache(mainAuthor), new UpdateOptions { IsUpsert = true });
                         }
                     }
                     catch
@@ -248,12 +244,12 @@ Console.WriteLine("found author with EntityId = " + authors[0].EntityId);
         // Registering to author changes, but if it does not work, it is not such a problem owing to eventual consistency
         try
         {
-            HttpClient? client = null;
+            HttpClient client = GetAuthenticatedClient("Authors");
             if (book.Editing != null && book.Editing.mainAuthor != null)
             {
-                if (client is null)
-                    client = GetAuthenticatedClient("Authors");
-                await client.PutAsync("/Authors/Subscribe?callbackURL=http://books:8080/books/AuthorsCache&$filter=href eq '" + book.Editing.mainAuthor.Href + "'", null);
+                int pos = book.Editing.mainAuthor.Href.LastIndexOf("/");
+                string authorEntityId = book.Editing.mainAuthor.Href.Substring(pos + 1);
+                await client.PutAsync("/Authors/Subscribe?callbackURL=http://books:8080/AuthorsCache&$filter=EntityId eq '" + authorEntityId + "'", null);
             }
         }
         catch
@@ -328,7 +324,7 @@ Console.WriteLine("found author with EntityId = " + authors[0].EntityId);
                     if (author != null)
                     {
                         authorCache = new AuthorCache(author);
-                        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").FindOneAndReplaceAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache);
+                        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache, new UpdateOptions { IsUpsert = true });
                     }
                 }
                 catch {}

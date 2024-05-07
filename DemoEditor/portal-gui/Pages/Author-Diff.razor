@@ -104,7 +104,6 @@ else
     private async void Modification(object sender, FieldChangedEventArgs e)
     {
         string path = e.FieldIdentifier.FieldName;
-        Console.WriteLine("champ modifié : " + path);
         switch (e.FieldIdentifier.FieldName)
         {
             case "FirstPhoneNumber":

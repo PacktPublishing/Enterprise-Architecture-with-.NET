@@ -69,7 +69,7 @@ public class Book
             Editing.mainAuthor.Href = "http://authors:82/Authors/" + value;
             Editing.mainAuthor.Rel = "dc:creator";
             Editing.mainAuthor.Title = "Author #" + value;
-            // Only important thing to fill correctly is the href, with a URL or URN; the rest will be adjusted by the backend
+            Editing.mainAuthor.UserEmailAddress = "Actual email address (like title) will be updated by the server, using the href value as reference";
         }
     }
 
