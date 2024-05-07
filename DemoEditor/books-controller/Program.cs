@@ -35,9 +35,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient("AuthorsWebhook", client => client.BaseAddress = new Uri("http://authors:8080/Authors/Subscribe"));
-builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://authors:8080/Authors"))
-    .AddPolicyHandler(GetRetryPolicy());
+builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://authors:8080")).AddPolicyHandler(GetRetryPolicy());
 
 builder.Services.AddCors();
 

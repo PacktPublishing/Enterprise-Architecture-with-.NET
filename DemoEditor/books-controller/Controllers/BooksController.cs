@@ -60,19 +60,29 @@ public class BooksController : ControllerBase
                     Title = (string)cells[1].Value
                 };
 
-                HttpClient client = _clientFactory.CreateClient("Authors");
+                HttpClient client = GetAuthenticatedClient("Authors");
                 try
                 {
                     // We try to retrieve authors by their full name; if it does not work, business people will tell if it is better to improve the algorithm with a "close enough" match or if the volume does not justify it and they will simply correct the mismatched author names in the initial books catalog
-                    Author? author = await client.GetFromJsonAsync<Author>("?$filter=Title eq '" + (string)cells[2].Value + "'"); // TODO: check that it works even without the /Authors, since BaseAddress seems to include only the host
-                    if (author != null) 
+                    string titleFromImport = (string)cells[2].Value;
+                    int posSpace = titleFromImport.IndexOf(" ");
+                    string filter = posSpace == -1
+                        ? ("lastName eq '" + titleFromImport + "'")
+                        : ("firstName eq '" + titleFromImport.Substring(0, posSpace) + "' and lastName eq '" + titleFromImport.Substring(posSpace + 1) + "'");
+
+Console.WriteLine("filter for author search = " + filter);
+
+                    Author[] authors = await client.GetFromJsonAsync<Author[]>("/Authors/?$filter=" + filter);
+                    if (authors.Length > 0) 
                     {
                         // URLs are hardcoded in order to better explain what is done by the code
+Console.WriteLine("found author with EntityId = " + authors[0].EntityId);
+
                         b.Editing = new EditingPetal() {
                             mainAuthor = new AuthorLink() {
                                 Rel = "dc.creator",
-                                Href = "http://demoeditor.org/authors/" + author.EntityId,
-                                Title = author.FirstName + " " + author.LastName,
+                                Href = "http://authors:82/Authors/" + authors[0].EntityId,
+                                Title = authors[0].FirstName + " " + authors[0].LastName.ToUpper(),
                             }
                         };
                     }
@@ -156,10 +166,13 @@ public class BooksController : ControllerBase
                 if (book.Editing != null && book.Editing.mainAuthor != null 
                     && expand != null && expand.Contains("mainAuthor"))
                 {
-                    HttpClient client = _clientFactory.CreateClient("Authors");
+                    HttpClient client = GetAuthenticatedClient("Authors");
                     try
                     {
-                        Author? mainAuthor = await client.GetFromJsonAsync<Author>(book.Editing.mainAuthor.Href); // TODO: adjust to port 8080 instead of 82, like was done in the PATCH operation below
+                        int pos = book.Editing.mainAuthor.Href.LastIndexOf("/");
+                        string authorEntityId = book.Editing.mainAuthor.Href.Substring(pos + 1);
+
+                        Author? mainAuthor = await client.GetFromJsonAsync<Author>("/Authors/" + authorEntityId);
                         if (mainAuthor != null)
                         {
                             // As a second level of security, the books referential immediately deletes confidential data in case the authors referential has a security problem
@@ -239,8 +252,8 @@ public class BooksController : ControllerBase
             if (book.Editing != null && book.Editing.mainAuthor != null)
             {
                 if (client is null)
-                    client = _clientFactory.CreateClient("AuthorsWebhook");
-                await client.PutAsync("?callbackURL=http://books:8080/books/AuthorsCache&$filter=href eq '" + book.Editing.mainAuthor.Href + "'", null);
+                    client = GetAuthenticatedClient("Authors");
+                await client.PutAsync("/Authors/Subscribe?callbackURL=http://books:8080/books/AuthorsCache&$filter=href eq '" + book.Editing.mainAuthor.Href + "'", null);
             }
         }
         catch
@@ -297,57 +310,32 @@ public class BooksController : ControllerBase
             State = book
         };
 
-Console.WriteLine("1: " + System.Text.Json.JsonSerializer.Serialize(book));
-
         // It is only after the saving of the patch that we rebuild the author link
         if (book?.Editing?.mainAuthor is not null)
         {
             int pos = book.Editing.mainAuthor.Href.LastIndexOf("/");
             string authorEntityId = book.Editing.mainAuthor.Href.Substring(pos + 1);
 
-Console.WriteLine("2: " + authorEntityId);
-
             // Since we consider speed is more important than absolute consistency for the author data duplicated in the link, we start with the cache
             var authorCache = Database.GetCollection<AuthorCache>("authors-bestsofar-cache").Find<AuthorCache>(item => item.EntityId == authorEntityId).FirstOrDefault();
             if (authorCache is null)
             {
-
-Console.WriteLine("3: ");
-
                 // But if we do not get the information from cache, we try to get it from the service and, of course, we refresh the cache if it works
                 try
                 {
-                    HttpClient client = _clientFactory.CreateClient("Authors");
-
-                    var httpContext = _httpContextAccessor.HttpContext;
-                    var accessToken = Request.Headers["Authorization"];
-                    string jwt = accessToken.ToString().Replace("Bearer ", "");
-
-Console.WriteLine("3bis: " + jwt);
-
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
-                    
-Console.WriteLine("3ter: ");
-                    
+                    HttpClient client = GetAuthenticatedClient("Authors");
                     var author = await client.GetFromJsonAsync<Author>("/Authors/" + authorEntityId);
                     if (author != null)
                     {
-Console.WriteLine("4: ");
-
                         authorCache = new AuthorCache(author);
                         await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").FindOneAndReplaceAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache);
                     }
                 }
-                catch (Exception excep)
-                {
-Console.WriteLine("5: " + excep.ToString());
-                }
+                catch {}
             }
 
             if (authorCache is not null)
             {
-Console.WriteLine("6: " + System.Text.Json.JsonSerializer.Serialize(authorCache));
-
                 book.Editing.mainAuthor.Rel = "dc:creator";
                 book.Editing.mainAuthor.Title = authorCache.FirstName + " " + authorCache.LastName.ToUpper();
                 book.Editing.mainAuthor.UserEmailAddress = authorCache.UserEmailAddress;
@@ -424,5 +412,15 @@ Console.WriteLine("6: " + System.Text.Json.JsonSerializer.Serialize(authorCache)
             await Database.GetCollection<Book>("books-bestsofar").DeleteManyAsync(item => true);
         }
         return new OkResult();
+    }
+
+    private HttpClient GetAuthenticatedClient(string name)
+    {
+        HttpClient client = _clientFactory.CreateClient(name);
+        var httpContext = _httpContextAccessor.HttpContext;
+        var accessToken = Request.Headers["Authorization"];
+        string jwt = accessToken.ToString().Replace("Bearer ", "");
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
+        return client;
     }
 }

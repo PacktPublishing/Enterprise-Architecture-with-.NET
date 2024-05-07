@@ -57,10 +57,53 @@ public class AuthorsController : ControllerBase
     public IActionResult Get(
         [FromQuery(Name = "$orderby")] string orderby = "",
         [FromQuery(Name = "$skip")] int skip = 0,
-        [FromQuery(Name = "$top")] int top = 20)
+        [FromQuery(Name = "$top")] int top = 20,
+        [FromQuery(Name = "$filter")] string filter = "")
     {
+        // Starting with the filtering content
+        var builder = Builders<Author>.Filter;
+        FilterDefinition<Author> queryFilter = null;
+        if (!string.IsNullOrEmpty(filter))
+        {
+            int posFirstName = filter.IndexOf("firstName eq '");
+            if (posFirstName > -1)
+            {
+                int posEndFirstName = filter.IndexOf("'", posFirstName + 14);
+                string firstName = filter.Substring(posFirstName + 14, posEndFirstName - posFirstName - 14);
+                if (queryFilter is null)
+                    queryFilter = builder.Eq(x => x.FirstName, firstName);
+                else 
+                    queryFilter &= builder.Eq(x => x.FirstName, firstName);
+            }
+
+Console.WriteLine("filter = " + filter);
+
+            int posLastName = filter.IndexOf("lastName eq '");
+
+Console.WriteLine("posLastName = " + posLastName);
+
+            if (posLastName > -1)
+            {
+                int posEndLastName = filter.IndexOf("'", posLastName + 13);
+
+Console.WriteLine("posEndLastName = " + posEndLastName);
+
+                string lastName = filter.Substring(posLastName + 13, posEndLastName - posLastName - 13);
+
+Console.WriteLine("lastName = " + lastName);
+
+                if (queryFilter is null)
+                    queryFilter = builder.Eq(x => x.LastName, lastName);
+                else
+                    queryFilter &= builder.Eq(x => x.LastName, lastName);
+            }
+        }
+
         // The Find method of the MongoDB driver supports ordering
-        var query = Database.GetCollection<Author>("authors-bestsofar").Find(r => true);
+        var query = queryFilter is null
+            ? Database.GetCollection<Author>("authors-bestsofar").Find(x => true)
+            : Database.GetCollection<Author>("authors-bestsofar").Find(queryFilter);
+        //var query = Database.GetCollection<Author>("authors-bestsofar").Find(queryFilter);
         if (!string.IsNullOrEmpty(orderby))
         {
             string jsonSort = string.Empty;
