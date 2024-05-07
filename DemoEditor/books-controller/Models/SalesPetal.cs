@@ -9,6 +9,9 @@ public class SalesPetal
 
     [BsonElement("weightInGrams")]
     public decimal? WeightInGrams { get; set; }
+
+    [BsonElement("copiesSold")]
+    public int? NumberOfCopiesSold { get; set; }
 }
 
 public class MonetaryAmount

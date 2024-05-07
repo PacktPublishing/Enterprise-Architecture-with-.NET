@@ -7,120 +7,138 @@
 
 <PageTitle>Book</PageTitle>
 
-<div>
-    <EditForm EditContext="context" class="row g-3">
-        <h2>
-            <span>Step 1 [draft]: defining the project</span>
-            @if (IsCurrentStep("draft")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-        <div class="col-md-6">
-            <label for="bookTitle" class="form-label">Title</label>
-            <InputText disabled='@(!IsCurrentStep("draft"))' class="form-control" id="bookTitle" @bind-Value="currentBook.Title" />
-            <ValidationMessage For="() => currentBook.Title" class="text-danger d-block" />
-        </div>
-        <div class="col-md-6">
-            <label for="techno" class="form-label">Technology</label>
-            <!-- TODO: transform into tags -->
-            <InputText disabled='@(!IsCurrentStep("draft"))' class="form-control" id="techno" @bind-Value="currentBook.MainTechnoTag" />
-        </div>
-        <div>
-            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
-            <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
-        </div>
+@if (currentBook == null || context == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <EditForm EditContext="context" class="row g-3">
+            <h2>
+                <span>Step 1 [draft]: defining the project</span>
+                @if (IsCurrentStep("draft")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+            <div class="col-md-6">
+                <label for="bookTitle" class="form-label">Title</label>
+                <InputText disabled='@(!IsCurrentStep("draft"))' class="form-control" id="bookTitle" @bind-Value="currentBook.Title" />
+                <ValidationMessage For="() => currentBook.Title" class="text-danger d-block" />
+            </div>
+            <div class="col-md-6">
+                <label for="techno" class="form-label">Technology</label>
+                <!-- TODO: transform into tags -->
+                <InputText disabled='@(!IsCurrentStep("draft"))' class="form-control" id="techno" @bind-Value="currentBook.MainTechnoTag" />
+            </div>
+            <div>
+                <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
+                <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
+            </div>
 
-        <h2>
-            <span>Step 2 [search]: request proposals from prospect users</span>
-            @if (IsCurrentStep("search")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-        <div hidden='@(!IsCurrentStep("search"))'>
-            <MudDropContainer T="DropItem" Items="authorsDropItems" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
-                <ChildContent>
-                    <MudDropZone T="DropItem" Identifier="potentialAuthors" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
-                        <MudText Typo="Typo.h6" Class="mb-4">Authors knowing this technology</MudText>
-                    </MudDropZone>
-                    <MudDropZone T="DropItem" Identifier="prospectAuthors" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
-                        <MudText Typo="Typo.h6" Class="mb-4">Authors to contact</MudText>
-                    </MudDropZone>
-                </ChildContent>
-                <ItemRenderer Context="item">
-                    <MudPaper Elevation="25" Class="pa-4 my-4">@item.Name</MudPaper>
-                </ItemRenderer>
-            </MudDropContainer>
-            <ValidationMessage For="() => currentBook.ProposedAuthors" class="text-danger d-block" />
-        </div>
-        <div>
-            <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step (will send invites)</button></span>
-        </div>
-        
-        <h2>
-            <span>Step 3 [write]: choose author and define main characteristics of the book</span>
-            @if (IsCurrentStep("write")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-        <div class="col-md-4">
-            <label for="nbChapters" class="form-label">Number of chapters</label>
-            <InputNumber disabled='@(!IsCurrentStep("write"))' class="form-control" id="nbChapters" @bind-Value="currentBook.NumberOfChapters" />
-            <ValidationMessage For="() => currentBook.NumberOfChapters" class="text-danger d-block" />
-        </div>
-        <div class="col-md-4">
-            <label for="plannedPublish" class="form-label">Planned publish date</label>
-            <InputDate disabled='@(!IsCurrentStep("write"))' class="form-control" id="plannedPublish" @bind-Value="currentBook.PlannedPublishDate" />
-            <ValidationMessage For="() => currentBook.PlannedPublishDate" class="text-danger d-block" />
-        </div>
-        <div class="col-md-4">
-            <label for="chosenAuthor" class="form-label">Chosen author</label>
-            <InputSelect disabled='@(!IsCurrentStep("write"))' id="chosenAuthor" class="form-select" @bind-Value="currentBook.MainAuthorId">
-                <option selected>Choose...</option>
-                @if (authorsList is not null)
-                    @foreach (var author in authorsList.ToList())
-                    {
-                        <option value="@author.EntityId">@author.Title</option>
-                    }
-            </InputSelect>
-            <ValidationMessage For="() => currentBook.MainAuthorId" class="text-danger d-block" />
-        </div>
-        <div>
-            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
-            <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
-        </div>
-        
-        <h2>
-            <span>Step 4 [edit]: validate book content and publish it</span>
-            @if (IsCurrentStep("edit")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-        <div class="col-md-4">
-            <label for="numberPages" class="form-label">Number of pages</label>
-            <InputNumber disabled='@(!IsCurrentStep("edit"))' class="form-control" id="numberPages" @bind-Value="currentBook.NumberOfPages" />
-            <ValidationMessage For="() => currentBook.NumberOfPages" class="text-danger d-block" />
-        </div>
-        <div class="col-md-4">
-            <label for="actualPublish" class="form-label">Actual publish date</label>
-            <InputDate disabled='@(!IsCurrentStep("edit"))' class="form-control" id="actualPublish" @bind-Value="currentBook.PublishDate" />
-            <ValidationMessage For="() => currentBook.PublishDate" class="text-danger d-block" />
-        </div>
-        <div>
-            <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
-            <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
-        </div>
-        
-        <h2>
-            <span>Step 5 [sell]: commercialize book</span>
-            @if (IsCurrentStep("sell")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-        <div class="col-md-4">
-            <label for="booksSold" class="form-label">Number of books sold</label>
-            <InputNumber disabled='@(!IsCurrentStep("sell"))' class="form-control" id="booksSold" @bind-Value="currentBook.Sales.NumberOfBooksSold" />
-            <ValidationMessage For="() => currentBook.Sales.NumberOfBooksSold" class="text-danger d-block" />
-        </div>
-        <div>
-            <span><button class="btn btn-primary" @onclick="NextStep">Save (which blocks sales and cannot be reversed) and go to next step</button></span>
-        </div>
-        
-        <h2>
-            <span>Step 6 [archive]: book is not active anymore</span>
-            @if (IsCurrentStep("archive")) { <span><b> (CURRENT STEP)</b></span> }
-        </h2>
-    </EditForm>
-</div>
+            <h2>
+                <span>Step 2 [search]: request proposals from prospect users</span>
+                @if (IsCurrentStep("search")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+            <div hidden='@(!IsCurrentStep("search"))'>
+                <MudDropContainer T="DropItem" Items="authorsDropItems" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+                    <ChildContent>
+                        <MudDropZone T="DropItem" Identifier="potentialAuthors" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                            <MudText Typo="Typo.h6" Class="mb-4">Authors knowing this technology</MudText>
+                        </MudDropZone>
+                        <MudDropZone T="DropItem" Identifier="prospectAuthors" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                            <MudText Typo="Typo.h6" Class="mb-4">Authors to contact</MudText>
+                        </MudDropZone>
+                    </ChildContent>
+                    <ItemRenderer Context="item">
+                        <MudPaper Elevation="25" Class="pa-4 my-4">@item.Name</MudPaper>
+                    </ItemRenderer>
+                </MudDropContainer>
+                <ValidationMessage For="() => currentBook.ProposedAuthors" class="text-danger d-block" />
+            </div>
+            <div>
+                <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step (will send invites)</button></span>
+            </div>
+            
+            <h2>
+                <span>Step 3 [write]: choose author and define main characteristics of the book</span>
+                @if (IsCurrentStep("write")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+            <div class="col-md-4">
+                <label for="nbChapters" class="form-label">Number of chapters</label>
+                <InputNumber disabled='@(!IsCurrentStep("write"))' class="form-control" id="nbChapters" @bind-Value="currentBook.NumberOfChapters" />
+                <ValidationMessage For="() => currentBook.NumberOfChapters" class="text-danger d-block" />
+            </div>
+            <div class="col-md-4">
+                <label for="plannedPublish" class="form-label">Planned publish date</label>
+                <InputDate disabled='@(!IsCurrentStep("write"))' class="form-control" id="plannedPublish" @bind-Value="currentBook.PlannedPublishDate" />
+                <ValidationMessage For="() => currentBook.PlannedPublishDate" class="text-danger d-block" />
+            </div>
+            <div class="col-md-4">
+                <label for="chosenAuthor" class="form-label">Chosen author</label>
+                <InputSelect disabled='@(!IsCurrentStep("write"))' id="chosenAuthor" class="form-select" @bind-Value="currentBook.MainAuthorId">
+                    <option selected>Choose...</option>
+                    @if (authorsList is not null)
+                        @foreach (var author in authorsList.ToList())
+                        {
+                            <option value="@author.EntityId">@author.Title</option>
+                        }
+                </InputSelect>
+                @* <ValidationMessage For="() => currentBook.MainAuthorId" class="text-danger d-block" /> *@
+            </div>
+            <div>
+                <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
+                <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
+            </div>
+            
+            <h2>
+                <span>Step 4 [edit]: validate book content and publish it</span>
+                @if (IsCurrentStep("edit")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+            <div class="col-md-4">
+                <label for="numberPages" class="form-label">Number of pages</label>
+                <InputNumber disabled='@(!IsCurrentStep("edit"))' class="form-control" id="numberPages" @bind-Value="currentBook.NumberOfPages" />
+                <ValidationMessage For="() => currentBook.NumberOfPages" class="text-danger d-block" />
+            </div>
+            <div class="col-md-4">
+                <label for="actualPublish" class="form-label">Actual publish date</label>
+                <InputDate disabled='@(!IsCurrentStep("edit"))' class="form-control" id="actualPublish" @bind-Value="currentBook.PublishDate" />
+                <ValidationMessage For="() => currentBook.PublishDate" class="text-danger d-block" />
+            </div>
+            <div>
+                <span><button class="btn btn-primary" @onclick="HandleSubmit">Save</button></span>
+                <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step</button></span>
+            </div>
+            
+            <h2>
+                <span>Step 5 [sell]: commercialize book</span>
+                @if (IsCurrentStep("sell")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+            <div class="col-md-4">
+                <label for="unitPrice" class="form-label">Unit selling price</label>
+                <InputNumber disabled='@(!IsCurrentStep("sell"))' class="form-control" id="unitPrice" @bind-Value="currentBook.UnitSellingPrice" />
+                <ValidationMessage For="() => currentBook.UnitSellingPrice" class="text-danger d-block" />
+            </div>
+            <div class="col-md-2">
+                <label for="currency" class="form-label">Currency</label>
+                <InputSelect TValue="string" disabled="true" id="currency" class="form-select" @bind-Value="currentBook.SellingCurrency">
+                    <option value="EUR" selected>€</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-4">
+                <label for="booksSold" class="form-label">Number of books sold</label>
+                <InputNumber disabled='@(!IsCurrentStep("sell"))' class="form-control" id="booksSold" @bind-Value="currentBook.Sales.NumberOfBooksSold" />
+                <ValidationMessage For="() => currentBook.Sales.NumberOfBooksSold" class="text-danger d-block" />
+            </div>
+            <div>
+                <span><button class="btn btn-primary" @onclick="NextStep">Save (which blocks sales and cannot be reversed) and go to next step</button></span>
+            </div>
+            
+            <h2>
+                <span>Step 6 [archive]: book is not active anymore</span>
+                @if (IsCurrentStep("archive")) { <span><b> (CURRENT STEP)</b></span> }
+            </h2>
+        </EditForm>
+    </div>
+}
 
 @code {
     [Parameter]
@@ -130,7 +148,7 @@
 
     private ValidationMessageStore validationMessages;
 
-    private DTO.Book currentBook = new();
+    private DTO.Book currentBook;
 
     private DTO.Author[] authorsList;
 
@@ -161,7 +179,7 @@
         booksClient = HttpFactory.CreateClient("BooksAPI");
         if (id == null)
         {
-            currentBook.EntityId = Guid.NewGuid().ToString("N");
+            currentBook = new() { EntityId = Guid.NewGuid().ToString("N") };
             if (currentBook.Editing is null) currentBook.Editing = new();
             if (currentBook.Editing.Status is null) currentBook.Editing.Status = new();
             if (string.IsNullOrEmpty(currentBook.Editing.Status.Value))
@@ -171,6 +189,13 @@
         else
         {
             currentBook = await booksClient.GetFromJsonAsync<DTO.Book>(@"http://books:81/Books/" + id);
+            if (currentBook is null)
+                Console.WriteLine("Fail to retrieve Book " + id);
+            else
+            {
+                Console.WriteLine("Retrieved Book " + id);
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(currentBook));
+            }
         }
 
         context = new EditContext(currentBook);

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace DTO;
 
 public class Book
@@ -53,13 +55,45 @@ public class Book
 
     public string MainAuthorId
     {
-        get { return Editing?.mainAuthor?.Id; }
+        get
+        {
+            if (Editing?.mainAuthor is null) return null;
+            int pos = Editing.mainAuthor.Href.LastIndexOf("/");
+            return Editing.mainAuthor.Href.Substring(pos + 1);
+        }
         set
         {
+            Console.WriteLine("Set MainAuthorid with {0} $0 ${0}", value);
             if (Editing is null) Editing = new EditingPetal();
             if (Editing.mainAuthor is null) Editing.mainAuthor = new AuthorLink();
-            Editing.mainAuthor.Id = value;
+            Editing.mainAuthor.Href = "http://authors:82/Authors/" + value;
+            Editing.mainAuthor.Rel = "dc:creator";
+            Editing.mainAuthor.Title = "Author #" + value;
+            // Only important thing to fill correctly is the href, with a URL or URN; the rest will be adjusted by the backend
         }
+    }
+
+    public decimal? UnitSellingPrice
+    {
+        get
+        {
+            return Sales.Price?.Value;
+        }
+        set
+        {
+            if (value is not null)
+            {
+                if (Sales.Price is null) Sales.Price = new MonetaryAmount();
+                Sales.Price.MonetaryUnit = SellingCurrency;
+                Sales.Price.Value = (decimal)value;
+            }
+        }
+    }
+
+    public string SellingCurrency
+    {
+        get { return "EUR"; }
+        set { throw new NotImplementedException("For now, multicurrency is not supported"); }
     }
 }
 
@@ -84,11 +118,6 @@ public class AuthorLink : Link
             int pos = Href.LastIndexOf("/");
             return Href.Substring(pos + 1);
         }
-        set
-        {
-            int pos = Href.LastIndexOf("/");
-            Href = Href.Substring(0, pos + 1) + value;
-        }
     }
 }
 
@@ -101,6 +130,7 @@ public class SalesPetal
 {
     public MonetaryAmount? Price { get; set; }
     public decimal? WeightInGrams { get; set; }
+    [JsonPropertyName("numberOfCopiesSold")]
     public int? NumberOfBooksSold { get; set; }
 }
 

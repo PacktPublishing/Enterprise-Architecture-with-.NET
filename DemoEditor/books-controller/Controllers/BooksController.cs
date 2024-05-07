@@ -23,12 +23,15 @@ public class BooksController : ControllerBase
 
     private IHttpClientFactory _clientFactory;
 
-    public BooksController(IConfiguration config, ILogger<BooksController> logger, IHttpClientFactory clientFactory)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public BooksController(IConfiguration config, ILogger<BooksController> logger, IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger;
         _clientFactory = clientFactory;
         ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [Authorize(Policy = "director")]
@@ -61,7 +64,7 @@ public class BooksController : ControllerBase
                 try
                 {
                     // We try to retrieve authors by their full name; if it does not work, business people will tell if it is better to improve the algorithm with a "close enough" match or if the volume does not justify it and they will simply correct the mismatched author names in the initial books catalog
-                    Author? author = await client.GetFromJsonAsync<Author>("?$filter=Title eq '" + (string)cells[2].Value + "'");
+                    Author? author = await client.GetFromJsonAsync<Author>("?$filter=Title eq '" + (string)cells[2].Value + "'"); // TODO: check that it works even without the /Authors, since BaseAddress seems to include only the host
                     if (author != null) 
                     {
                         // URLs are hardcoded in order to better explain what is done by the code
@@ -156,7 +159,7 @@ public class BooksController : ControllerBase
                     HttpClient client = _clientFactory.CreateClient("Authors");
                     try
                     {
-                        Author? mainAuthor = await client.GetFromJsonAsync<Author>(book.Editing.mainAuthor.Href);
+                        Author? mainAuthor = await client.GetFromJsonAsync<Author>(book.Editing.mainAuthor.Href); // TODO: adjust to port 8080 instead of 82, like was done in the PATCH operation below
                         if (mainAuthor != null)
                         {
                             // As a second level of security, the books referential immediately deletes confidential data in case the authors referential has a security problem
@@ -293,6 +296,63 @@ public class BooksController : ControllerBase
             ValueDate = valueDate,
             State = book
         };
+
+Console.WriteLine("1: " + System.Text.Json.JsonSerializer.Serialize(book));
+
+        // It is only after the saving of the patch that we rebuild the author link
+        if (book?.Editing?.mainAuthor is not null)
+        {
+            int pos = book.Editing.mainAuthor.Href.LastIndexOf("/");
+            string authorEntityId = book.Editing.mainAuthor.Href.Substring(pos + 1);
+
+Console.WriteLine("2: " + authorEntityId);
+
+            // Since we consider speed is more important than absolute consistency for the author data duplicated in the link, we start with the cache
+            var authorCache = Database.GetCollection<AuthorCache>("authors-bestsofar-cache").Find<AuthorCache>(item => item.EntityId == authorEntityId).FirstOrDefault();
+            if (authorCache is null)
+            {
+
+Console.WriteLine("3: ");
+
+                // But if we do not get the information from cache, we try to get it from the service and, of course, we refresh the cache if it works
+                try
+                {
+                    HttpClient client = _clientFactory.CreateClient("Authors");
+
+                    var httpContext = _httpContextAccessor.HttpContext;
+                    var accessToken = Request.Headers["Authorization"];
+                    string jwt = accessToken.ToString().Replace("Bearer ", "");
+
+Console.WriteLine("3bis: " + jwt);
+
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
+                    
+Console.WriteLine("3ter: ");
+                    
+                    var author = await client.GetFromJsonAsync<Author>("/Authors/" + authorEntityId);
+                    if (author != null)
+                    {
+Console.WriteLine("4: ");
+
+                        authorCache = new AuthorCache(author);
+                        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").FindOneAndReplaceAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache);
+                    }
+                }
+                catch (Exception excep)
+                {
+Console.WriteLine("5: " + excep.ToString());
+                }
+            }
+
+            if (authorCache is not null)
+            {
+Console.WriteLine("6: " + System.Text.Json.JsonSerializer.Serialize(authorCache));
+
+                book.Editing.mainAuthor.Rel = "dc:creator";
+                book.Editing.mainAuthor.Title = authorCache.FirstName + " " + authorCache.LastName.ToUpper();
+                book.Editing.mainAuthor.UserEmailAddress = authorCache.UserEmailAddress;
+            }
+        }
 
         // This new state is added to the list of ongoing states of the entity
         var collectionEtats = Database.GetCollection<BsonDocument>("books-states");
