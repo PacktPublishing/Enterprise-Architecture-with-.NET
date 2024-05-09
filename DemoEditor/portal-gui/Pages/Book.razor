@@ -232,13 +232,14 @@ else
         {
             foreach (var author in authorsList)
             {
-                authorsDropItems.Add(new DropItem()
-                {
-                    Identifier = "potentialAuthors",
-                    EntityId = author.EntityId,
-                    Name = author.FirstName + " " + author.LastName.ToUpper(),
-                    Email = author.UserEmailAddress
-                });
+                if (author.Restriction == "none")
+                    authorsDropItems.Add(new DropItem()
+                    {
+                        Identifier = "potentialAuthors",
+                        EntityId = author.EntityId,
+                        Name = author.FirstName + " " + author.LastName.ToUpper(),
+                        Email = author.UserEmailAddress
+                    });
             }
         }
 
