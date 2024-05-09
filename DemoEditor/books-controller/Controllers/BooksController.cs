@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json.Serialization;
+using books_controller.Business;
 using books_controller.Models;
 using books_controller.Tools;
 using Microsoft.AspNetCore.Authorization;
@@ -299,12 +300,10 @@ public class BooksController : ControllerBase
 
         // Applying the patch of change to the state, in order to determine the new state
         patch.ApplyTo(book);
-        ObjectState<Book> nouvelEtat = new ObjectState<Book>()
-        {
-            EntityId = entityId,
-            ValueDate = valueDate,
-            State = book
-        };
+
+        // This is where we apply business rules on the book
+        BooksBehaviours behaviours = new BooksBehaviours(book);
+        behaviours.Execute();
 
         // It is only after the saving of the patch that we rebuild the author link
         if (book?.Editing?.mainAuthor is not null)
@@ -340,6 +339,12 @@ public class BooksController : ControllerBase
 
         // This new state is added to the list of ongoing states of the entity
         var collectionEtats = Database.GetCollection<BsonDocument>("books-states");
+        ObjectState<Book> nouvelEtat = new ObjectState<Book>()
+        {
+            EntityId = entityId,
+            ValueDate = valueDate,
+            State = book
+        };
         await collectionEtats.InsertOneAsync(nouvelEtat.ToBsonDocument());
 
         // It is also used as a replacement of the best so far

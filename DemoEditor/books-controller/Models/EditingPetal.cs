@@ -12,6 +12,9 @@ public class EditingPetal
 
     [BsonElement("mainAuthor")]
     public AuthorLink? mainAuthor { get; set; }
+
+    [BsonElement("prospectAuthors")]
+    public List<ProspectAuthorLink> ProspectAuthors { get; set; } = new List<ProspectAuthorLink>();
 }
 
 public class Status

@@ -43,15 +43,27 @@ public class Book
         set { PublishDate = value; }
     }
 
-    public List<AuthorLink> ProposedAuthors
+    public void AddProspectAuthor(string entityId, string email, string name)
     {
-        get { return Editing?.proposedAuthors; }
-        set
-        {
-            if (Editing is null) Editing = new EditingPetal();
-            Editing.proposedAuthors = value;
-        }
+        if (Editing is null) Editing = new EditingPetal();
+        Editing.ProspectAuthors.Add(new ProspectAuthorLink() {
+            Href = "http://authors:82/Authors/" + entityId,
+            Rel = "dc:creator",
+            Title = name,
+            UserEmailAddress = email,
+            ProspectionStatus = "selected-by-editors-as-prospect"
+        });
     }
+
+    // public List<AuthorLink> ProposedAuthors
+    // {
+    //     get { return Editing?.proposedAuthors; }
+    //     set
+    //     {
+    //         if (Editing is null) Editing = new EditingPetal();
+    //         Editing.proposedAuthors = value;
+    //     }
+    // }
 
     public string MainAuthorId
     {
@@ -63,7 +75,6 @@ public class Book
         }
         set
         {
-            Console.WriteLine("Set MainAuthorid with {0} $0 ${0}", value);
             if (Editing is null) Editing = new EditingPetal();
             if (Editing.mainAuthor is null) Editing.mainAuthor = new AuthorLink();
             Editing.mainAuthor.Href = "http://authors:82/Authors/" + value;
@@ -103,7 +114,7 @@ public class EditingPetal
     public string? MainTechnoTag { get; set; }
     public Status? Status { get; set; }
     public AuthorLink? mainAuthor { get; set; }
-    public List<AuthorLink> proposedAuthors { get; set; } = new List<AuthorLink>();
+    public List<ProspectAuthorLink> ProspectAuthors { get; set; } = new List<ProspectAuthorLink>();
 }
 
 public class AuthorLink : Link
@@ -119,6 +130,13 @@ public class AuthorLink : Link
             return Href.Substring(pos + 1);
         }
     }
+}
+
+public class ProspectAuthorLink : AuthorLink
+{
+    public string ProspectionStatus { get; set; }
+
+    // TODO: add decoupled link to middle office supporting request (analyze if useful on the client side)
 }
 
 public class Status

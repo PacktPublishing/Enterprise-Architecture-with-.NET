@@ -52,7 +52,7 @@ else
                         <MudPaper Elevation="25" Class="pa-4 my-4">@item.Name</MudPaper>
                     </ItemRenderer>
                 </MudDropContainer>
-                <ValidationMessage For="() => currentBook.ProposedAuthors" class="text-danger d-block" />
+                @* <ValidationMessage For="() => currentBook.ProposedAuthors" class="text-danger d-block" /> *@
             </div>
             <div>
                 <span><button class="btn btn-primary" @onclick="NextStep">Save and go to next step (will send invites)</button></span>
@@ -214,6 +214,15 @@ else
 
     private async void NextStep()
     {
+        // Some operations have to be done before we save the state of the book entity
+        if (currentBook.Editing.Status.Value == "search")
+        {
+            currentBook.Editing.ProspectAuthors.Clear();
+            foreach (DropItem author in authorsDropItems.Where(item => item.Identifier == "prospectAuthors"))
+                currentBook.AddProspectAuthor(author.EntityId, author.Email, author.Name);
+        }
+
+        // This is the core of the function, when we evolve the step in the business process and save the entity
         string nextValue = null;
         switch (currentBook.Editing.Status.Value)
         {
@@ -228,6 +237,7 @@ else
         if (!context.GetValidationMessages().Any())
             currentBook.Editing.Status.Value = nextValue;
         
+        // Some operations need to be realized after we have successfully advanced in the process
         if (currentBook.Editing.Status.Value == "search")
         {
             foreach (var author in authorsList)
@@ -243,7 +253,7 @@ else
             }
         }
 
-        StateHasChanged();
+        StateHasChanged(); // TODO: check if useful
     }
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
