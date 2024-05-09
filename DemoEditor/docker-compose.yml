@@ -26,7 +26,7 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.3
+    image: demoeditor/books-api:0.4
     build:
       context: ./books-controller
       dockerfile: Dockerfile
@@ -38,7 +38,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.3
+    image: demoeditor/authors-api:0.4
     build:
       context: ./authors-controller
       dockerfile: Dockerfile
@@ -47,8 +47,18 @@ services:
     networks:
       - front
       - back
+  mo:
+    image: demoeditor/middleoffice:0.4
+    build:
+      context: ./
+      dockerfile: Dockerfile-middleoffice
+    ports:
+      - 83:8080
+    networks:
+      - front
+      - back
   portal:
-    image: demoeditor/portal-gui:0.3
+    image: demoeditor/portal-gui:0.4
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
