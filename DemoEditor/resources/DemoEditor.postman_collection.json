@@ -84,7 +84,8 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -137,7 +138,8 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -492,7 +494,8 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -1192,7 +1195,8 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json-patch+json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -1212,6 +1216,126 @@
 							"path": [
 								"Authors",
 								"jpgou"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MiddleOffice",
+			"item": [
+				{
+					"name": "Declare template",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": [{\"lang\": \"en-US\", \"value\": \"You have been proposed to write a new book for DemoEditor\"}],\r\n    \"fields\": [\r\n        {\r\n            \"id\": \"BookId\",\r\n            \"name\": [{\"lang\": \"en-US\", \"value\": \"Project book identifier\"}],\r\n            \"inputType\": \"string\",\r\n            \"visible\": false\r\n        },\r\n        {\r\n            \"id\": \"AuthorId\",\r\n            \"name\": [{\"lang\": \"en-US\", \"value\": \"Prospect author identifier\"}],\r\n            \"inputType\": \"string\",\r\n            \"visible\": false\r\n        },\r\n        {\r\n            \"id\": \"BookTitle\",\r\n            \"name\": [{\"lang\": \"en-US\", \"value\": \"Title of the proposed book\"}],\r\n            \"inputType\": \"string\"\r\n        },\r\n        {\r\n            \"id\": \"MaxResponseDate\",\r\n            \"name\": [{\"lang\": \"en-US\", \"value\": \"Deadline for response\"}],\r\n            \"inputType\": \"date\",\r\n            \"required\": false\r\n        }\r\n    ],\r\n    \"possibleDecisions\": [\r\n        {\r\n            \"id\": \"YES\",\r\n            \"title\": [{\"lang\": \"en-US\", \"value\": \"I accept\"}],\r\n            \"actions\" : [{\"href\": \"http://books:8080/Books/${BookId}/AuthorsAcceptingWritingProposal/${AuthorId}\", \"verb\": \"POST\"}]\r\n        },\r\n        {\r\n            \"id\": \"NO\",\r\n            \"title\": [{\"lang\": \"en-US\", \"value\": \"I decline\"}]\r\n        },\r\n        {\r\n            \"id\": \"CONTACT\",\r\n            \"title\": [{\"lang\": \"en-US\", \"value\": \"I would like to be contacted by an editor\"}],\r\n            \"actions\" : [{\"href\": \"http://authors:8080/Authors/${AuthorId}/RequestForContact\", \"verb\": \"POST\"}]\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{MiddleOfficeURL}}/templates/AuthorNewBookProposal",
+							"host": [
+								"{{MiddleOfficeURL}}"
+							],
+							"path": [
+								"templates",
+								"AuthorNewBookProposal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{MiddleOfficeURL}}/templates",
+							"host": [
+								"{{MiddleOfficeURL}}"
+							],
+							"path": [
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"idRequest\", pm.response.json().entityId);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"fieldId\": \"BookId\",\r\n        \"value\": \"00025\"\r\n    },\r\n    {\r\n        \"fieldId\": \"AuthorId\",\r\n        \"value\": \"jpgou\"\r\n    },\r\n    {\r\n        \"fieldId\": \"BookTitle\",\r\n        \"value\": \"Performance in .NET, Third Edition\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{MiddleOfficeURL}}/templates/AuthorNewBookProposal/request",
+							"host": [
+								"{{MiddleOfficeURL}}"
+							],
+							"path": [
+								"templates",
+								"AuthorNewBookProposal",
+								"request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read request",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"fieldId\": \"BookId\",\r\n        \"value\": \"00025\"\r\n    },\r\n    {\r\n        \"fieldId\": \"AuthorId\",\r\n        \"value\": \"jpgou\"\r\n    },\r\n    {\r\n        \"fieldId\": \"BookTitle\",\r\n        \"value\": \"Performance in .NET, Third Edition\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{MiddleOfficeURL}}/request/{{idRequest}}",
+							"host": [
+								"{{MiddleOfficeURL}}"
+							],
+							"path": [
+								"request",
+								"{{idRequest}}"
 							]
 						}
 					},

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using authors_controller.Models;
 using authors_controller.Tools;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net.Mail;
 
 namespace authors_controller.Controllers;
 
@@ -62,6 +63,27 @@ public class AuthorsController : ControllerBase
             return Ok();
         else
             return StatusCode(500);
+    }
+
+    [AllowAnonymous] // This is typically where we could use a One-Time Token for security without identification
+    [HttpPost]
+    [Route("{authorId}/RequestForContact")]
+    public async Task<IActionResult> RequestForContact(string authorId)
+    {
+        var smtpClient = new SmtpClient("mail")
+        {
+            Port = 1025,
+            //Credentials = new NetworkCredential("username", "password"),
+            EnableSsl = false,
+        };
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress("authors-service@demoeditor.org"),
+            Subject = $"Someone please contact author {authorId}",
+        };
+        mailMessage.To.Add("editors@demoeditor.org");
+        smtpClient.Send(mailMessage);
+        return Ok();
     }
 
     [HttpGet]

@@ -8,6 +8,7 @@ using books_controller.Models;
 using books_controller.Tools;
 using Microsoft.AspNetCore.Authorization;
 using FastExcel;
+using System.Net.Mail;
 
 namespace books_controller.Controllers;
 
@@ -107,6 +108,32 @@ public class BooksController : ControllerBase
             return Ok();
         else
             return StatusCode(500);
+    }
+
+    [AllowAnonymous] // This is typically where we could use a One-Time Token for security without identification
+    [HttpPost]
+    [Route("{bookId}/AuthorsAcceptingWritingProposal/{authorId}")]
+    public async Task<IActionResult> ReceiveAcceptedProposal(string bookId, string authorId)
+    {
+        var smtpClient = new SmtpClient("mail")
+        {
+            Port = 1025,
+            //Credentials = new NetworkCredential("username", "password"),
+            EnableSsl = false,
+        };
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress("editors@demoeditor.org"),
+            Subject = "A prospect author has accepted writing proposal",
+            Body = $"""
+                <p>Book project: <a href='http://books:81/Books/{bookId}'>{bookId}</a></p>
+                <p>Author accepting: <a href='http://authors:82/Authors/{authorId}'>{authorId}</a></p>
+                """,
+            IsBodyHtml = true
+        };
+        mailMessage.To.Add("editors@demoeditor.org");
+        smtpClient.Send(mailMessage);
+        return Ok();
     }
 
     [Authorize(Policy = "editor")]

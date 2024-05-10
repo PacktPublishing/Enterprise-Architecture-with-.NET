@@ -19,6 +19,7 @@ public class BooksBehaviours
 
     public void InviteProspects()
     {
+        // TODO: extract the mail sending in a notification service, and rearrange this class so it can be read by product owners
         var smtpClient = new SmtpClient("mail")
         {
             Port = 1025,
