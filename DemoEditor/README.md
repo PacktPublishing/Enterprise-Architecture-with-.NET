@@ -43,7 +43,7 @@ If you use the command line to retrieve the necessary files (you may also downlo
 
 ```
 git clone https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET
-git checkout v0.2
+git checkout v0.3
 ```
 
 Running the application is then as simple as launching Docker Compose on the right file:
