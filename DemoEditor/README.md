@@ -36,6 +36,8 @@ Even if everything is installed in the local machine, it makes it much easier to
 127.0.0.1 portal
 127.0.0.1 authors
 127.0.0.1 books
+127.0.0.1 mail
+127.0.0.1 middleoffice
 ```
 
 In order to avoid as much network conflicts as possible, the main application is exposed on port 88 instead of the default port 80. No HTTPS is used, again with the objective of simplifying as much as possible the deployment of the sample information system.
@@ -44,7 +46,7 @@ If you use the command line to retrieve the necessary files (you may also downlo
 
 ```
 git clone https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET
-git checkout v0.2
+git checkout v0.4
 ```
 
 Running the application is then as simple as launching Docker Compose on the right file:
@@ -109,6 +111,12 @@ A GUI to inspect content of the MongoDB database is also provided in this versio
 
 ![](images/DBGUI.png)
 
+## Defining the middle office behaviour
+
+In order for the middle office to work properly, it is necessary to create a template definition, by using the Postman collection, and in particular the `Declare template` operation under folder `MiddleOffice`:
+
+![](images/TemplateMiddleOffice.png)
+
 ## Running the application
 
 Going to `http://portal:88` should provide the following interface (if an error occurs, check the 88 port is not already used in another process):
@@ -140,3 +148,25 @@ If you log out, create a user with a simple `editor` role, which provides fewer 
 ![](images/Unauthorized.png)
 
 And that's about it for this second version of the sample application. The evolution to a secured system has been realized without touching any of the business function, but that sounds logical. The real test of the architecture will be when adding some business-related features, which will be the subjects of the following versions (see other branches of the repository).
+
+## Executing the book creation process
+
+Still in the portal, under the `Books` menu, click on the `Start project for a new book`. This should bring you to a form where you will be able to progress step by step in a book creation:
+
+![](images/BookCreation.png)
+
+When in second step, you should drag and drop some authors to send them an invite:
+
+![](images/ProspectAuthorsSelection.png)
+
+Once the choice is validated, the process integrated in the API will create a request in the middle office service and send an invite to the authors. The invite can be found in the mail server:
+
+![](images/images/AuthorInvite.png)
+
+The content of the mail is the form coming from the middle office:
+
+![](images/MiddleOfficeRequest.png)
+
+If you click on the first button, another mail will be sent explaining the author has accepted the proposal. There is no action attached to the second choice. Finally, the third choice will send a mail to the editors in order to ask them to call the author:
+
+![](images/RequestForContact.png)

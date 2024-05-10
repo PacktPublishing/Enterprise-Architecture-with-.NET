@@ -1329,12 +1329,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{MiddleOfficeURL}}/request/{{idRequest}}",
+							"raw": "{{MiddleOfficeURL}}/requests/{{idRequest}}",
 							"host": [
 								"{{MiddleOfficeURL}}"
 							],
 							"path": [
-								"request",
+								"requests",
 								"{{idRequest}}"
 							]
 						}
