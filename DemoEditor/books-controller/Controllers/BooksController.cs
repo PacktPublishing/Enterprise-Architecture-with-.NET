@@ -125,9 +125,10 @@ public class BooksController : ControllerBase
         {
             From = new MailAddress("editors@demoeditor.org"),
             Subject = "A prospect author has accepted writing proposal",
+            // TODO: expose HTML pages for the links below or adjust IAM so that new tabs of portal gets authenticated, if possible since it is a Single Page Application and not a web site
             Body = $"""
-                <p>Book project: <a href='http://books:81/Books/{bookId}'>{bookId}</a></p>
-                <p>Author accepting: <a href='http://authors:82/Authors/{authorId}'>{authorId}</a></p>
+                <p>Book project: {bookId}</p>
+                <p>Author accepting: <a href='http://portal:88/author/{authorId}'>{authorId}</a></p>
                 """,
             IsBodyHtml = true
         };
@@ -328,9 +329,16 @@ public class BooksController : ControllerBase
         // Applying the patch of change to the state, in order to determine the new state
         patch.ApplyTo(book);
 
-        // This is where we apply business rules on the book
-        BooksBehaviours behaviours = new BooksBehaviours(book);
-        behaviours.Execute();
+        // This is where we apply business rules on the book.
+        // TODO: find a more generic way to inject the potentially necessary services.
+        BooksBehaviours behaviours = new BooksBehaviours(book, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"));
+        bool correctExecution = await behaviours.Execute();
+        if (!correctExecution)
+        {
+            // TODO: work on a more sophisticated error management, and possibly suppress patch just saved
+            // for immediate consistency, or delay its recording after the business behaviours operations
+            return BadRequest();
+        }
 
         // It is only after the saving of the patch that we rebuild the author link
         if (book?.Editing?.mainAuthor is not null)

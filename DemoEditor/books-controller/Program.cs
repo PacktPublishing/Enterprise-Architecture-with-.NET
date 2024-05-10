@@ -36,6 +36,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient("Authors", client => client.BaseAddress = new Uri("http://authors:8080")).AddPolicyHandler(GetRetryPolicy());
+builder.Services.AddHttpClient("MiddleOffice", client => client.BaseAddress = new Uri("http://mo:8080")).AddPolicyHandler(GetRetryPolicy());
 
 builder.Services.AddCors();
 

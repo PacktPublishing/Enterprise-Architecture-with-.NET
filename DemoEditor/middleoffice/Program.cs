@@ -103,7 +103,7 @@ app.MapPost("/templates/{idTemplate}/request", async (string idTemplate, [FromBo
 // When the request is created, a GUID is generated and the full URL is sent back in the Location header,
 // as edicted in the HTTP standard, together with a 201 result. This is then used by the person target of the request
 // to read its content and decide on the decision that will be sent afterwards. This is typically sent into a web form.
-app.MapGet("/request/{guidRequest}", async (string guidRequest) => {
+app.MapGet("/requests/{guidRequest}", async (string guidRequest) => {
 
     // Before all, we need to get the request back from persistence
     IMongoDatabase Database = new MongoClient("mongodb://db:27017").GetDatabase("middleoffice");
@@ -127,7 +127,7 @@ app.MapGet("/request/{guidRequest}", async (string guidRequest) => {
     }
     foreach (Decision possibleDecision in template.PossibleDecisions)
     {
-        form += $"<form action='http://middleoffice:83/request/{guidRequest}/decision/{possibleDecision.Id}' method='POST'>";
+        form += $"<form action='http://middleoffice:83/requests/{guidRequest}/decision/{possibleDecision.Id}' method='POST'>";
         form += $"""  <input type='submit' value='{possibleDecision.Title.FirstOrDefault().Value ?? ("Decision code:" + possibleDecision.Id)}'/>""";
         form += "</form>";
     }
@@ -137,7 +137,7 @@ app.MapGet("/request/{guidRequest}", async (string guidRequest) => {
 // The only modifications that will come afterwards will be when someone adds a decision on the request.
 // This can be done by anyone, since we consider the knowing of the GUID of the request is enough of a security here.
 // Setting this decision on the request automatically runs the actions associated to the decision in the template.
-app.MapPost("/request/{guidRequest}/decision/{idDecision}", async (IHttpClientFactory httpClientFactory, string guidRequest, string idDecision) => {
+app.MapPost("/requests/{guidRequest}/decision/{idDecision}", async (IHttpClientFactory httpClientFactory, string guidRequest, string idDecision) => {
 
     // When receiving a decision, we must first ensure the request exists and is not closed
     IMongoDatabase Database = new MongoClient("mongodb://db:27017").GetDatabase("middleoffice");
