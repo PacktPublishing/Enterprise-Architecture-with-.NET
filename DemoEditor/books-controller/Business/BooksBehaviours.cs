@@ -81,7 +81,7 @@ public class BooksBehaviours
     }
 }
 
-// TODO: externalize all mechanism associated to middle office consumption in a dedicated class
+// TODO: externalize all mechanism associated to middle office consumption in a dedicated class, and ideally make this an injectable service
 public class InputValue
 {
     [Required(ErrorMessage = "Field id is mandatory")]

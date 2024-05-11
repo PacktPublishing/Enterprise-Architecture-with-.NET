@@ -1342,6 +1342,94 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Notify address",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{UsersURL}}/Notify?to=urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org&title=Test&from=urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org",
+							"host": [
+								"{{UsersURL}}"
+							],
+							"path": [
+								"Notify"
+							],
+							"query": [
+								{
+									"key": "to",
+									"value": "urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org"
+								},
+								{
+									"key": "title",
+									"value": "Test"
+								},
+								{
+									"key": "from",
+									"value": "urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Notify user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{UsersURL}}/Notify?to=urn:org:demoeditor:contact:user:francesca@demoeditor.org&title=Test&from=urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org&priority=high",
+							"host": [
+								"{{UsersURL}}"
+							],
+							"path": [
+								"Notify"
+							],
+							"query": [
+								{
+									"key": "to",
+									"value": "urn:org:demoeditor:contact:user:francesca@demoeditor.org"
+								},
+								{
+									"key": "title",
+									"value": "Test"
+								},
+								{
+									"key": "from",
+									"value": "urn:org:demoeditor:contact:emailaddress:no-reply@demoeditor.org"
+								},
+								{
+									"key": "priority",
+									"value": "high"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read messages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{UsersURL}}/MyNewMessages",
+							"host": [
+								"{{UsersURL}}"
+							],
+							"path": [
+								"MyNewMessages"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {

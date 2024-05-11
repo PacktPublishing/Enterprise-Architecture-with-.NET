@@ -1,0 +1,47 @@
+@page "/notifications"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IHttpClientFactory HttpFactory
+
+<PageTitle>Notifications</PageTitle>
+
+@if (MessagesList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h1>Here are your @TotalNumberOfMessages new messages</h1>
+    <div class="container">
+    @foreach (var msg in MessagesList)
+    {
+        <div class="row">
+            <div class="col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@msg.Title</h5>
+                        <p class="card-text">
+                            <span>@msg.Message</span>
+                        </p>
+                    </div>
+                </div>
+            </div>        
+        </div>
+    }
+    </div>
+}
+
+@code {
+    private int? TotalNumberOfMessages = null;
+
+    private DTO.UserMessage[]? MessagesList;
+
+    private HttpClient client = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpFactory.CreateClient("UsersNotifAPI");
+        MessagesList = await client.GetFromJsonAsync<DTO.UserMessage[]>(@"http://users:84/MyNewMessages");
+        TotalNumberOfMessages = MessagesList.Length;
+    }
+}

@@ -33,6 +33,14 @@ public class Program
                 return handler;
             });
 
+        builder.Services
+            .AddHttpClient("UsersNotifAPI", client => client.BaseAddress = new Uri("http://users:84"))
+            .AddHttpMessageHandler(x => {
+                var handler = x.GetRequiredService<AuthorizationMessageHandler>()
+                    .ConfigureHandler(new[] { "http://users:84" });
+                return handler;
+            });
+
         builder.Services.AddOidcAuthentication(options =>
         {
             options.ProviderOptions.Authority = "http://iam:8080/realms/demoeditor/";

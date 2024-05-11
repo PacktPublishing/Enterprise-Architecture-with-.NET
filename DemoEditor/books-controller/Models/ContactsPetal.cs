@@ -2,12 +2,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace books_controller.Models;
 
+// TODO: put in common, as this is now used as a generic class from notification service
+
 public class ContactsPetal
 {
     [BsonElement("adresses")]
     public List<Address>? Addresses { get; set; }
 
-    [BsonElement("status")]
+    [BsonElement("phones")]
     public List<Phone>? Phones { get; set; }
 }
 
