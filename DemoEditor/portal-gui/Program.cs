@@ -43,7 +43,7 @@ public class Program
 
         builder.Services.AddOidcAuthentication(options =>
         {
-            options.ProviderOptions.Authority = "http://iam:8080/realms/demoeditor/";
+            options.ProviderOptions.Authority = "http://iam:8088/realms/demoeditor/";
             options.ProviderOptions.ClientId = "portal";
             options.ProviderOptions.ResponseType = "code";
             options.UserOptions.RoleClaim = "realm_access.roles";

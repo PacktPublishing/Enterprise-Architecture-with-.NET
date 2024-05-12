@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+   <id>CMM_DemoEditor</id>
+   <auto-deploy>true</auto-deploy>
+   <configurations>
+      <config condition="DocumentLibrary" evaluator="string-compare" replace="false">
+         <aspects>
+            <visible>
+               <aspect label="DemoEditor Author Contract" name="de:AuthorContract"/>
+            </visible>
+         </aspects>
+      </config>
+      <config condition="FormDefinition" evaluator="string-compare">
+      </config>
+   </configurations>
+</module>

@@ -1430,11 +1430,490 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Documents",
+			"item": [
+				{
+					"name": "Root",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{CMISURL}}",
+							"host": [
+								"{{CMISURL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create folder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisAction",
+									"value": "createFolder",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[0]",
+									"value": "cmis:objectTypeId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[0]",
+									"value": "cmis:folder",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[1]",
+									"value": "cmis:name",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[1]",
+									"value": "DemoEditor",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisaction",
+									"value": "createDocument",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[0]",
+									"value": "cmis:objectTypeId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[0]",
+									"value": "cmis:document",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[1]",
+									"value": "cmis:name",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[1]",
+									"value": "TestDocument",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/jpgou/Downloads/the-ultimate-docker-compose-cheat-sheet.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create doc with metadata",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisaction",
+									"value": "createDocument",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[0]",
+									"value": "cmis:objectTypeId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[0]",
+									"value": "cmis:document",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[1]",
+									"value": "cmis:name",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[1]",
+									"value": "TestContract",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/jpgou/Documents/Recherche/INFORSID24_AntiPatronsAlignement_AuthorsVersion.pdf"
+								},
+								{
+									"key": "propertyId[2]",
+									"value": "de:authorId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[2]",
+									"value": "jpgou",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[3]",
+									"value": "de:bookId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[3]",
+									"value": "00025",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[4]",
+									"value": "cmis:secondaryObjectTypeIds",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[4]",
+									"value": "P:de:AuthorContract",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[5]",
+									"value": "de:bookTitle",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[5]",
+									"value": "Performance in .NET, 3rd Edition",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[6]",
+									"value": "de:contractId",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[6]",
+									"value": "2024-jpgou-001",
+									"type": "text"
+								},
+								{
+									"key": "propertyId[7]",
+									"value": "de:contractType",
+									"type": "text"
+								},
+								{
+									"key": "propertyValue[7]",
+									"value": "NewEdition",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisaction",
+									"value": "query",
+									"type": "text"
+								},
+								{
+									"key": "statement",
+									"value": "select * from cmis:document where cmis:name like 'Test%'",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}",
+							"host": [
+								"{{CMISURL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query using metadata",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisaction",
+									"value": "query",
+									"type": "text"
+								},
+								{
+									"key": "statement",
+									"value": "select * from de:AuthorContract where de:authorId='jpgou'",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}",
+							"host": [
+								"{{CMISURL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query in URL",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{CMISURL}}?cmisselector=query&succinct=true&q=select * from de:AuthorContract where de:authorId='jpgou'",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"query": [
+								{
+									"key": "cmisselector",
+									"value": "query"
+								},
+								{
+									"key": "succinct",
+									"value": "true"
+								},
+								{
+									"key": "q",
+									"value": "select * from de:AuthorContract where de:authorId='jpgou'"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve document content",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor",
+								"TestContract"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisAction",
+									"value": "delete",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor",
+								"TestContract"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete folder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisAction",
+									"value": "delete",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "admin",
+						"type": "string"
+					},
+					{
+						"key": "username",
+						"value": "admin",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		}
 	],
 	"auth": {
 		"type": "oauth2",
 		"oauth2": [
+			{
+				"key": "accessTokenUrl",
+				"value": "http://iam:8088/realms/demoeditor/protocol/openid-connect/token",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "http://iam:8088/realms/demoeditor/protocol/openid-connect/auth",
+				"type": "string"
+			},
 			{
 				"key": "redirect_uri",
 				"value": "http://books:8080/authentication/login-callback",
@@ -1443,16 +1922,6 @@
 			{
 				"key": "scope",
 				"value": "",
-				"type": "string"
-			},
-			{
-				"key": "accessTokenUrl",
-				"value": "http://iam:8080/realms/demoeditor/protocol/openid-connect/token",
-				"type": "string"
-			},
-			{
-				"key": "authUrl",
-				"value": "http://iam:8080/realms/demoeditor/protocol/openid-connect/auth",
 				"type": "string"
 			},
 			{
