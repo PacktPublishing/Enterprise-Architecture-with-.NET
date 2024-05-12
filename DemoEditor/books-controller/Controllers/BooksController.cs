@@ -326,12 +326,15 @@ public class BooksController : ControllerBase
             book = result.First();
         }
 
-        // Applying the patch of change to the state, in order to determine the new state
+        // Applying the patch of change to the state, in order to determine the new state, while keeping a clone
+        // that will help us define the change business rules below
+        Book before = (Book)book.Clone();
         patch.ApplyTo(book);
 
         // This is where we apply business rules on the book.
         // TODO: find a more generic way to inject the potentially necessary services.
-        BooksBehaviours behaviours = new BooksBehaviours(book, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"));
+        // TODO: generate webhook callbacks on the important changes (modification of status, etc.)
+        BooksBehaviours behaviours = new BooksBehaviours(book, before, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("Users"));
         bool correctExecution = await behaviours.Execute();
         if (!correctExecution)
         {
@@ -453,7 +456,6 @@ public class BooksController : ControllerBase
     private HttpClient GetAuthenticatedClient(string name)
     {
         HttpClient client = _clientFactory.CreateClient(name);
-        var httpContext = _httpContextAccessor.HttpContext;
         var accessToken = Request.Headers["Authorization"];
         string jwt = accessToken.ToString().Replace("Bearer ", "");
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);

@@ -282,7 +282,6 @@ public class AuthorsController : ControllerBase
             if (client is null)
             {
                 client = _clientFactory.CreateClient("Callbacks");
-                var httpContext = _httpContextAccessor.HttpContext;
                 var accessToken = Request.Headers["Authorization"];
                 string jwt = accessToken.ToString().Replace("Bearer ", "");
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);

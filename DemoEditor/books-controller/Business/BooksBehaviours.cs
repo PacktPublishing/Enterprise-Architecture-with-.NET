@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using books_controller.Models;
 using System.Net.Mail;
+using System.Net.Http.Headers;
 
 namespace books_controller.Business;
 
@@ -8,32 +9,39 @@ public class BooksBehaviours
 {
     private Book _book;
 
+    private Book _previousState;
+
     private HttpClient _clientMiddleOffice;
 
-    private HttpClient _clientMiddleOffice2;
+    private HttpClient _clientMiddleOffice2; // TODO: check if this debug is useful and how it could be changed if so
 
-    public BooksBehaviours(Book book, HttpClient clientMiddleOffice, HttpClient clientMiddleOffice2)
+    private HttpClient _clientNotification;
+
+    public BooksBehaviours(Book book, Book previousState, HttpClient clientMiddleOffice, HttpClient clientMiddleOffice2, HttpClient clientNotification)
     {
         _book = book;
+        _previousState = previousState;
         _clientMiddleOffice = clientMiddleOffice;
         _clientMiddleOffice2 = clientMiddleOffice2;
+        _clientNotification = clientNotification;
     }
 
     public async Task<bool> Execute()
     {
-        return await InviteProspects();
+        bool result = true;
+        if (ProspectsHaveBeenAdded())
+            result = result && await InviteProspects();
+        return result;
+    }
+
+    private bool ProspectsHaveBeenAdded()
+    {
+        return (_previousState?.Editing?.ProspectAuthors is null || _previousState?.Editing?.ProspectAuthors.Count() == 0)
+            && (_book?.Editing?.ProspectAuthors is not null && _book.Editing.ProspectAuthors.Count() > 0);
     }
 
     public async Task<bool> InviteProspects()
     {
-        // TODO: extract the mail sending in a notification service, and rearrange this class so it can be read by product owners
-        var smtpClient = new SmtpClient("mail")
-        {
-            Port = 1025,
-            //Credentials = new NetworkCredential("username", "password"),
-            EnableSsl = false,
-        };
-
         foreach (ProspectAuthorLink prospect in _book.Editing.ProspectAuthors)
         {
             if (prospect.ProspectionStatus == "selected-by-editors-as-prospect")
@@ -61,18 +69,17 @@ public class BooksBehaviours
                 messageContent += $"<p>If this message does not display correctly, please click on <a href='{urlRequest}'>this link</a> for the online version</p>";
 
                 // Once the request is ready in the middle office, we can send a message to the prospect author for them to respond.
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress("authors-service@demoeditor.org"),
-                    Subject = $"DemoEditor has selected you as a possible author for the new book called {_book.Title}",
-                    Body = messageContent,
-                    IsBodyHtml = true
-                };
-                mailMessage.To.Add(prospect.UserEmailAddress);
-                smtpClient.Send(mailMessage);
+                StringContent content = new StringContent(messageContent, System.Text.UnicodeEncoding.UTF8, "text/html");
+                content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+                _clientNotification.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+                string from = "urn:org:demoeditor:contact:emailaddress:authors-service@demoeditor.org";
+                string to = $"urn:org:demoeditor:contact:emailaddress:{prospect.UserEmailAddress}";
+                string title = $"DemoEditor has selected you as a possible author for the new book called {_book.Title}";
+                await _clientNotification.PostAsync($"http://users:8080/Notify?to={to}&title={title}&from={from}&contentType=html", content);
 
                 // In this naive implementation, we do not add any robustness measure: if the code above does not throw
-                // any exception, we consider the mail will be received by the prospect author and skip to the next step
+                // any exception, we consider the mail will be received by the prospect author and skip to the next step.
+                // Note that persistence is not activated here since the calling method will be recording the entity in the end.
                 prospect.ProspectionStatus = "waiting-for-prospect-response";
             }
         }

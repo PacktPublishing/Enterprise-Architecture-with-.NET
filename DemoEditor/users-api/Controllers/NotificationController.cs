@@ -62,14 +62,21 @@ public class NotificationController : ControllerBase
         [FromQuery] string? from,
         [FromQuery] string to,
         [FromQuery] string? title,
-        [FromBody] string? message,
-        [FromQuery] string? priority = "normal")
+        [FromQuery] string? priority = "normal",
+        [FromQuery] string? contentType = "text")
     {
+        var contentHeader = Request.Headers["Content-Type"];
+        bool isBodyHtml = contentHeader.ToString().ToLower() == "text/html";
+        string message = string.Empty;
+        using (var reader = new System.IO.StreamReader(Request.Body, System.Text.Encoding.UTF8))
+        {  
+            message = await reader.ReadToEndAsync();
+        }
+
         // Instead of fighting with different clients and complex retrieval of login success, as well as reflecting on how
         // to send it only once, we simply provision the user everytime a call that needs it is realized, as it is in this operation
         if (!(await ProvisionCurrentUser()))
             return BadRequest("Impossible to provision user");
-
         Contacts? origin = await GetContactsFromURN(from);
         Contacts destination = await GetContactsFromURN(to);
         if (destination is null)
@@ -92,7 +99,7 @@ public class NotificationController : ControllerBase
             if (origin is not null) mailMessage.From = new MailAddress(origin.Emails.First().EmailAddress);
             mailMessage.Subject = title;
             mailMessage.Body = message;
-            mailMessage.IsBodyHtml = false; // TODO: Content request header indicates what format is the full message in the body
+            mailMessage.IsBodyHtml = isBodyHtml; // TODO: Content request header indicates what format is the full message in the body
             mailMessage.To.Add(destination.Emails.First().EmailAddress);
             smtpClient.Send(mailMessage);
         }
@@ -196,7 +203,6 @@ public class NotificationController : ControllerBase
     private HttpClient GetAuthenticatedClient(string name)
     {
         HttpClient client = _clientFactory.CreateClient(name);
-        var httpContext = _httpContextAccessor.HttpContext;
         var accessToken = Request.Headers["Authorization"];
         string jwt = accessToken.ToString().Replace("Bearer ", "");
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);

@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace books_controller.Models;
 
-public class Book
+public class Book : ICloneable
 {
     [BsonId()]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -33,4 +34,10 @@ public class Book
 
     [BsonElement("sales")]
     public SalesPetal? Sales { get; set; }
+
+    public object Clone()
+    {
+        string serialized = JsonSerializer.Serialize(this);
+        return JsonSerializer.Deserialize<Book>(serialized);
+    }
 }
