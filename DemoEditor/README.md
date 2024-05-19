@@ -23,13 +23,14 @@ The sample application follows versions that hopefully make it easier to read th
 - Branch [v0.4](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.4/DemoEditor) adds two services. The first one is based on MailHog and sends invites to prospect authors for a new book. The second one is a custom Middle Office so that prospect users can indicate whether they accept of reject this invite.
 - Branch [v0.5](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.5/DemoEditor) introduces the notification service and points the existing services to this new tool. As a side-effect, this version also brings the feature of auto-provisionning of users on the corresponding server.
 - Branch [v0.6](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.6/DemoEditor) goes further in the business process choreography by adding a webhook callback when an author is chosen, which in turns generates a contract in the Electronic Document Management service. Since this exchange of contract needs some hard delivery robustness, we will introduce a Message-Oriented Middleware at this step. **Warning: the IAM service switches from port 8080 to 8088 in this version (see explanation below).**
+- Branch [v0.7](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.7/DemoEditor) introduces orchestration with n8n, using its editor to react to the creation of an authoring contract. A very simple reporting mechanism is also added in this version, in the form of a PowerBI Desktop report.
 - Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation) **but also additional content that is outside the scope of the book**. Use this version if you want to follow the future works of the author on this sample information system.
 
 ## Prerequisites
 
 Docker has been used in order to reduce as much as possible the required tooling. Since all images are available online (even the custom ones created for the sample information system, available at `https://hub.docker.com/repositories/demoeditor`), all you need to work with the application is Docker (see https://docs.docker.com/engine/install/ for installation instructions). The images versions follow the branches of the code.
 
-If you want to debug the application, make some changes to it in order to follow the instructions from the book, then you will also need .NET 8.0 SDK (https://dotnet.microsoft.com/download), Visual Studio Code (https://code.visualstudio.com/download), and Git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Postman (https://www.postman.com/) will also be used as an option to quickly inject data.
+If you want to debug the application, make some changes to it in order to follow the instructions from the book, then you will also need .NET 8.0 SDK (https://dotnet.microsoft.com/download), Visual Studio Code (https://code.visualstudio.com/download), and Git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Postman (https://www.postman.com/) will also be used as an option to quickly inject data. Power BI (https://www.microsoft.com/en/power-platform/products/power-bi/) can be used to read a provided report that directly calls the data referential services through their API endpoints.
 
 ## Installation
 
@@ -184,6 +185,30 @@ The EDM system should now be ready for use in the Information System business pr
 
 ![](images/AlfrescoParams.png)
 
+### Adding orchestration
+
+The server called n8n is used to externalize process management. In order for the two requested workflows to be added, you need to enter the console of n8n by browsing to `http://localhost:5678/workflows` and clicking on the `Add workflow` button.
+
+![](images/ImportChoreography.png)
+
+Selecting the file called `Contract_Generated.json` and provided in the `resources` subfolder will create a workflow that listens to the RabbitMQ MOM and executes some operations. Doing so with the second file called `Nightly_import_of_legacy_books_list.json` will create another process that will be fired every day at 00:00:
+
+![](images/Trigger.png)
+
+Do not forget to activate the two workflows if they have not been upon creation:
+
+![](images/Workflows.png)
+
+You will also need to adjust the tasks requiring authentication for the whole system to work. For example, on the import task of the second workflow, a Keycloak user with `director` role must be provided using the OAuth2 mode:
+
+![](images/Credentials.png)
+
+As indicated in the form, you will need to add `http://localhost:5678/rest/oauth2-credential/callback` as a valid redirection URL in the Keycloak customization of the `portal` client if you want to reuse it for this purpose. Be careful that, if you run in local mode and HTTP, the redirection mechanism may force you to externalize the IAM in its own Docker Compose file, just like as been done for the EDM.
+
+### PowerBI reporting
+
+The file `DemoEditor.pbix` is provided in the `Resources` folder. You will have to adjust the authentication setup to access the data from your API endpoints.
+
 ## Running the application
 
 ### Accessing the GUI
@@ -261,6 +286,10 @@ Clicking on the document shows a preview of the contract generated in PDF and th
 Going down in the interface, on the right in the `Properties` tab, you will find the metadata associated to the contract:
 
 ![](images/MetadataContract.png)
+
+During this time, a message was sent back on the MOM (the queue is called `ContractGenerated`) to produce a roundtrip (pattern "request and response" of the EIP). This time the service called `bpm` and based on the product n8n is used in order to react to this message, sending a message to the author explaining their contract is ready for signing, then creating a folder with the book code inside a OneDrive share:
+
+![](images/Orchestration.png)
 
 ## Notes
 

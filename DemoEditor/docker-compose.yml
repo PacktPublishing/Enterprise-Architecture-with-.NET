@@ -25,7 +25,7 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.6
+    image: demoeditor/books-api:0.7
     build:
       context: ./books-controller
       dockerfile: Dockerfile
@@ -40,7 +40,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.6
+    image: demoeditor/authors-api:0.7
     build:
       context: ./authors-controller
       dockerfile: Dockerfile
@@ -50,7 +50,7 @@ services:
       - front
       - back
   mo:
-    image: demoeditor/middleoffice:0.6
+    image: demoeditor/middleoffice:0.7
     build:
       context: ./
       dockerfile: Dockerfile-middleoffice
@@ -60,7 +60,7 @@ services:
       - front
       - back
   users:
-    image: demoeditor/users-api:0.6
+    image: demoeditor/users-api:0.7
     build:
       context: ./
       dockerfile: Dockerfile-users-api
@@ -70,7 +70,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.6
+    image: demoeditor/portal-gui:0.7
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
@@ -79,7 +79,7 @@ services:
     networks:
       - front
   contracts:
-    image: demoeditor/contracts:0.6
+    image: demoeditor/contracts:0.7
     build:
       context: ./contracts
       dockerfile: Dockerfile
@@ -114,6 +114,14 @@ services:
       - 5673:5672
     networks:
       - back
+  bpm:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - 5678:5678
+    networks:
+      - back
+    volumes:
+      - import:/tmp/workflow
 networks:
   front:
   back:

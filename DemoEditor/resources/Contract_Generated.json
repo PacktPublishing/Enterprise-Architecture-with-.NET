@@ -1,0 +1,102 @@
+{
+  "name": "Contract Generated",
+  "nodes": [
+    {
+      "parameters": {
+        "queue": "ContractGenerated",
+        "options": {
+          "jsonParseBody": true
+        }
+      },
+      "id": "d1cf6670-335e-49d8-97c0-0c431d11ec52",
+      "name": "RabbitMQ Trigger",
+      "type": "n8n-nodes-base.rabbitmqTrigger",
+      "typeVersion": 1,
+      "position": [
+        480,
+        200
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "Hdn66XRnMhlrHdE9",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "contracts@demoeditor.org",
+        "toEmail": "={{ $json.content.Editing.mainAuthor.UserEmailAddress }}",
+        "subject": "=Contract for book  {{ $json.content.Title }}",
+        "html": "=Please sign contract for authoring the designated book (reference  {{ $json.content.EntityId }})",
+        "options": {}
+      },
+      "id": "93df6e18-a078-4b8e-85bf-6e681e68cc72",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        200
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "13JSlsmtqfz2uxyQ",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "=/Contracts/{{ $('RabbitMQ Trigger').item.json.content.EntityId }}",
+        "options": {}
+      },
+      "id": "2c9bf12c-268c-4d8a-983c-182fe385d403",
+      "name": "Microsoft OneDrive",
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        920,
+        200
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RabbitMQ Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Microsoft OneDrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7e37fbaf-1e23-44ca-a11d-80c9ca8a9553",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e9331754b33ba81942f9fd01efac704a3428ffc851360e8e4fadb24e5ae2b956"
+  },
+  "id": "P2s3145TuQagus6M",
+  "tags": []
+}

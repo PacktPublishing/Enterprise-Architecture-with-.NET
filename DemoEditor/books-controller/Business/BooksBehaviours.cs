@@ -37,9 +37,22 @@ public class BooksBehaviours
         bool result = true;
         if (ProspectsHaveBeenAdded())
             result = result && await InviteProspects();
+        if (AuthorDataNeedsRefresh())
+            result = result && await RefreshAuthorData();
         if (AuthorHasBeenChosen())
-            result = result && await InformListenersAuthorChosenForBook(_book);
+            result = result && await InformListenersAuthorChosenForBook();
         return result;
+    }
+
+    private bool AuthorDataNeedsRefresh()
+    {
+        return _book?.Editing?.mainAuthor?.UserEmailAddress is not null && _book?.Editing?.mainAuthor?.UserEmailAddress == "Actual email address (like title) will be updated by the server, using the href value as reference";
+    }
+
+    private async Task<bool> RefreshAuthorData()
+    {
+        // TODO: to be implemented by extracting the code that already exists to do so in the BooksController
+        return true;
     }
 
     private bool AuthorHasBeenChosen()
@@ -47,7 +60,7 @@ public class BooksBehaviours
         return (_previousState?.Editing?.mainAuthor is null && _book?.Editing?.mainAuthor is not null);
     }
 
-    private async Task<bool> InformListenersAuthorChosenForBook(Book book)
+    private async Task<bool> InformListenersAuthorChosenForBook()
     {
         string RabbitUser = _configuration.GetValue<string>("RABBITMQ_DEFAULT_USER");
         string RabbitPassword = _configuration.GetValue<string>("RABBITMQ_DEFAULT_PASS");
@@ -57,7 +70,7 @@ public class BooksBehaviours
         using (var channel = connection.CreateModel())
         {
             channel.QueueDeclare(queue: "AuthorChosenForBookEvent", durable: false, exclusive: false, autoDelete: false, arguments: null);
-            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(book));
+            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_book));
             channel.BasicPublish(exchange: "", routingKey: "AuthorChosenForBookEvent", basicProperties: null, body: body);
         }
         return true;

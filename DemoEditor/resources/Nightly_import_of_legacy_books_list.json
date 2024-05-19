@@ -1,0 +1,70 @@
+{
+  "name": "Nightly import of legacy books list",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "9e5c818d-cdb6-4e2c-ae15-24d9597b62b7",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://books:81/Books/Import?localFileAddress=/tmp/data/DemoEditor-BooksCatalog.xlsx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "id": "0d1ba4e7-ad37-4610-a846-045723c1f162",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        200
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "uGrYcrnqiZDlMbyL",
+          "name": "Keycloak credentials"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9347dcd-7167-4c16-9255-39523f9afdc2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e9331754b33ba81942f9fd01efac704a3428ffc851360e8e4fadb24e5ae2b956"
+  },
+  "id": "4QDHvSXjnIHy3t3H",
+  "tags": []
+}

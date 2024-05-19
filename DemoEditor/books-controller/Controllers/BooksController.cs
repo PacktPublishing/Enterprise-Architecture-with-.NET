@@ -334,18 +334,6 @@ public class BooksController : ControllerBase
         Book before = (Book)book.Clone();
         patch.ApplyTo(book);
 
-        // This is where we apply business rules on the book.
-        // TODO: find a more generic way to inject the potentially necessary services.
-        // TODO: generate webhook callbacks on the important changes (modification of status, etc.)
-        BooksBehaviours behaviours = new BooksBehaviours(book, before, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("Users"), _configuration);
-        bool correctExecution = await behaviours.Execute();
-        if (!correctExecution)
-        {
-            // TODO: work on a more sophisticated error management, and possibly suppress patch just saved
-            // for immediate consistency, or delay its recording after the business behaviours operations
-            return BadRequest();
-        }
-
         // It is only after the saving of the patch that we rebuild the author link
         if (book?.Editing?.mainAuthor is not null)
         {
@@ -376,6 +364,18 @@ public class BooksController : ControllerBase
                 book.Editing.mainAuthor.Title = authorCache.FirstName + " " + authorCache.LastName.ToUpper();
                 book.Editing.mainAuthor.UserEmailAddress = authorCache.UserEmailAddress;
             }
+        }
+
+        // This is where we apply business rules on the book.
+        // TODO: find a more generic way to inject the potentially necessary services.
+        // TODO: generate webhook callbacks on the important changes (modification of status, etc.)
+        BooksBehaviours behaviours = new BooksBehaviours(book, before, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("Users"), _configuration);
+        bool correctExecution = await behaviours.Execute();
+        if (!correctExecution)
+        {
+            // TODO: work on a more sophisticated error management, and possibly suppress patch just saved
+            // for immediate consistency, or delay its recording after the business behaviours operations
+            return BadRequest();
         }
 
         // This new state is added to the list of ongoing states of the entity
