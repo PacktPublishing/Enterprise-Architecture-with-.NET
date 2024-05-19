@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using books_controller.Models;
 using System.Net.Mail;
 using System.Net.Http.Headers;
+using RabbitMQ.Client;
+using System.Text;
+using System.Text.Json;
 
 namespace books_controller.Business;
 
@@ -17,13 +20,16 @@ public class BooksBehaviours
 
     private HttpClient _clientNotification;
 
-    public BooksBehaviours(Book book, Book previousState, HttpClient clientMiddleOffice, HttpClient clientMiddleOffice2, HttpClient clientNotification)
+    private IConfiguration _configuration { get; set; }
+
+    public BooksBehaviours(Book book, Book previousState, HttpClient clientMiddleOffice, HttpClient clientMiddleOffice2, HttpClient clientNotification, IConfiguration configuration)
     {
         _book = book;
         _previousState = previousState;
         _clientMiddleOffice = clientMiddleOffice;
         _clientMiddleOffice2 = clientMiddleOffice2;
         _clientNotification = clientNotification;
+        _configuration = configuration;
     }
 
     public async Task<bool> Execute()
@@ -31,7 +37,30 @@ public class BooksBehaviours
         bool result = true;
         if (ProspectsHaveBeenAdded())
             result = result && await InviteProspects();
+        if (AuthorHasBeenChosen())
+            result = result && await InformListenersAuthorChosenForBook(_book);
         return result;
+    }
+
+    private bool AuthorHasBeenChosen()
+    {
+        return (_previousState?.Editing?.mainAuthor is null && _book?.Editing?.mainAuthor is not null);
+    }
+
+    private async Task<bool> InformListenersAuthorChosenForBook(Book book)
+    {
+        string RabbitUser = _configuration.GetValue<string>("RABBITMQ_DEFAULT_USER");
+        string RabbitPassword = _configuration.GetValue<string>("RABBITMQ_DEFAULT_PASS");
+
+        var factory = new ConnectionFactory() { HostName = "mom", UserName = RabbitUser, Password = RabbitPassword };
+        using (var connection = factory.CreateConnection())
+        using (var channel = connection.CreateModel())
+        {
+            channel.QueueDeclare(queue: "AuthorChosenForBookEvent", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(book));
+            channel.BasicPublish(exchange: "", routingKey: "AuthorChosenForBookEvent", basicProperties: null, body: body);
+        }
+        return true;
     }
 
     private bool ProspectsHaveBeenAdded()

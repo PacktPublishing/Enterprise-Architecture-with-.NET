@@ -26,10 +26,13 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.5
+    image: demoeditor/books-api:0.6
     build:
       context: ./books-controller
       dockerfile: Dockerfile
+    environment:
+      - RABBITMQ_DEFAULT_USER=rapido
+      - RABBITMQ_DEFAULT_PASS=k5rXH6wmBhE2bukfXFsz
     ports:
       - 81:8080
     networks:
@@ -38,7 +41,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.5
+    image: demoeditor/authors-api:0.6
     build:
       context: ./authors-controller
       dockerfile: Dockerfile
@@ -48,7 +51,7 @@ services:
       - front
       - back
   mo:
-    image: demoeditor/middleoffice:0.5
+    image: demoeditor/middleoffice:0.6
     build:
       context: ./
       dockerfile: Dockerfile-middleoffice
@@ -58,7 +61,7 @@ services:
       - front
       - back
   users:
-    image: demoeditor/users-api:0.5
+    image: demoeditor/users-api:0.6
     build:
       context: ./
       dockerfile: Dockerfile-users-api
@@ -68,7 +71,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.5
+    image: demoeditor/portal-gui:0.6
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
@@ -76,12 +79,40 @@ services:
       - 88:80
     networks:
       - front
+  contracts:
+    image: demoeditor/contracts:0.6
+    build:
+      context: ./contracts
+      dockerfile: Dockerfile
+    environment:
+      - RABBITMQ_DEFAULT_USER=rapido
+      - RABBITMQ_DEFAULT_PASS=k5rXH6wmBhE2bukfXFsz
+      - EDM_CMIS_URL=http://edm:8080/alfresco/api/-default-/public/cmis/versions/1.1/browser
+      - EDM_BASE_FOLDER=/root/DemoEditor/
+      - EDM_CMIS_SERVICEACCOUNT_NAME=Administrator
+      - EDM_CMIS_SERVICEACCOUNT_PASS=Administrator
+    networks:
+      - back
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    stdin_open: true
+    tty: true
   mail:
     image: mailhog/mailhog
     restart: always
     ports:
       - 1025:1025
       - 8025:8025      
+    networks:
+      - back
+  mom:
+    image: rabbitmq:3.13-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=rapido
+      - RABBITMQ_DEFAULT_PASS=k5rXH6wmBhE2bukfXFsz
+    ports:
+      - 15672:15672
+      - 5673:5672
     networks:
       - back
 networks:

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Apache.DotCMIS" Version="0.6.0" />
+    <PackageReference Include="PortCMIS" Version="0.3.0" />
   </ItemGroup>
 
 </Project>

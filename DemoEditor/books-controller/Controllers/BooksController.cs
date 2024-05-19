@@ -19,6 +19,8 @@ public class BooksController : ControllerBase
 {
     private readonly string ConnectionString;
 
+    private readonly IConfiguration _configuration;
+
     private readonly IMongoDatabase Database;
 
     private readonly ILogger<BooksController> _logger;
@@ -29,6 +31,7 @@ public class BooksController : ControllerBase
 
     public BooksController(IConfiguration config, ILogger<BooksController> logger, IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor)
     {
+        _configuration = config;
         _logger = logger;
         _clientFactory = clientFactory;
         _httpContextAccessor = httpContextAccessor;
@@ -334,7 +337,7 @@ public class BooksController : ControllerBase
         // This is where we apply business rules on the book.
         // TODO: find a more generic way to inject the potentially necessary services.
         // TODO: generate webhook callbacks on the important changes (modification of status, etc.)
-        BooksBehaviours behaviours = new BooksBehaviours(book, before, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("Users"));
+        BooksBehaviours behaviours = new BooksBehaviours(book, before, GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("MiddleOffice"), GetAuthenticatedClient("Users"), _configuration);
         bool correctExecution = await behaviours.Execute();
         if (!correctExecution)
         {

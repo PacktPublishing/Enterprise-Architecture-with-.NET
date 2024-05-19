@@ -44,6 +44,7 @@ Even if everything is installed in the local machine, it makes it much easier to
 127.0.0.1 middleoffice
 127.0.0.1 users
 127.0.0.1 edm
+127.0.0.1 mom
 ```
 
 In order to avoid as much network conflicts as possible, the main application is exposed on port 88 instead of the default port 80. No HTTPS is used, again with the objective of simplifying as much as possible the deployment of the sample information system.
@@ -78,7 +79,15 @@ Once everything is ready (it can take a few minutes at first initialization), yo
 
 ![](images/LoginAlfresco.png)
 
-This console is where you will be able to check that the sample files are indeed created in the EDM folders. This is also where you can add metadata schemas, and generally speaking realize administration operations on the CMIS-compatible server. If you go to `Admin tools` and `Model Manager`, for example, you will see the following interface that will allow you to import a metadata schema:
+This console is where you will be able to check that the sample files are indeed created in the EDM folders. This is also where you can add metadata schemas, and generally speaking realize administration operations on the CMIS-compatible server. The very first thing to do is to create a receiving folder under the root of the repository you just logged in. To do so, go to `My files`, and click on `Create...` then `Folder`:
+
+![](images/CreateFolder.png)
+
+For the examples below to work, this folder needs to be named precisely `DemoEditor`:
+
+![](images/FolderName.png)
+
+After that, we need to execute a second, a bit more complex, administration operation. If you go to `Admin tools` and `Model Manager`, you will see the following interface that will allow you to import a metadata schema:
 
 ![](images/AlfrescoModels.png)
 
