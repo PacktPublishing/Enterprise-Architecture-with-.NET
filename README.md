@@ -1,10 +1,10 @@
-# Enterprise Architeccture with .NET
+# Enterprise Architecture with .NET
 
 <a href="https://www.packtpub.com/product/enterprise-architecture-with-net/9781835085660"> <img src="https://content.packt.com/_/image/original/B21293/cover_image_large.jpg" alt="Enterprise Architecture with .NET" itemprop="url" height="256px" align="right">
 
 This is the code repository for [Enterprise-Architecture-with-.NET](https://www.packtpub.com/product/enterprise-architecture-with-net/9781835085660), published by Packt.
 
-**Expert-backed advice for information system design, down to .NET and C# implementation**
+**Expert-backed advice for Information System design, down to .NET and C# implementation**
 
 ## What is this book about?
 This book will help you create applications that integrate correctly into complex and ever-changing information systems. You’ll execute this by using industry standards that reduce the app's technical debt and elevate software development practices.
@@ -22,7 +22,7 @@ If you feel this book is for you, get your [copy](https://a.co/d/00sd2qb) today!
 
 ## Instructions and Navigations
 
-Refer [[INSTRUCTIONS.md]](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/blob/main/INSTRUCTIONS.md) for detailed instructions.
+Refer to [INSTRUCTIONS.md](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/blob/main/INSTRUCTIONS.md) for detailed description of the content of this repository, and please read [DemoEditor/README.md](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/blob/main/DemoEditor/README.md) to follow code implementation together with the reading of the book. `DemoEditor` is the name of the example company for which an Information System is built in the book, and the code associated shows the bits of code presented in the book, but in a complete functional setup.
 
 The code will look like the following:
 
