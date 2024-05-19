@@ -4,6 +4,43 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 
+
+#region DEBUG
+// Book book = new Book {
+//     EntityId = "00024",
+//     Title = "Performance in .NET",
+//     Editing = new EditingPetal {
+//         NumberOfChapters = 12,
+//         mainAuthor = new AuthorLink {
+//             Href = "http://authors:82/Authors/jpgou",
+//             Title = "JP Gouigoux",
+//             UserEmailAddress = "jp.gouigoux@free.fr"
+//         }
+//     }
+// };
+
+// byte[] pdf = PDFContract.Generate(book);
+
+// string authorURL = book.Editing.mainAuthor.Href;
+// int posLastSlash = authorURL.LastIndexOf('/');
+// string authorId = authorURL.Substring(posLastSlash + 1);
+
+// Dictionary<string, string> metadata = new();
+// metadata.Add("de:authorId", authorId);
+// metadata.Add("de:bookId", book.EntityId);
+// metadata.Add("de:bookTitle", book.Title);
+// metadata.Add("de:contractId", DateTime.Now.Year.ToString() + "-" + book.EntityId);
+// metadata.Add("de:contractType", "NewEdition");
+// await EDMClient.SendDocument(
+//     "Contract-" + book.EntityId,
+//     "AuthorContract",
+//     metadata,
+//     "Contract-" + book.EntityId + ".pdf",
+//     pdf);
+
+// Console.ReadLine();
+#endregion
+
 IConfiguration _configuration = new ConfigurationBuilder()
   .AddEnvironmentVariables()
   .Build();

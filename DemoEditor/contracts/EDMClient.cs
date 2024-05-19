@@ -14,19 +14,20 @@ internal class EDMClient
         var base64EncodedAuthenticationString = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes("admin:admin"));
 
         HttpClient client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(20);
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, EDMDemoEditorFolderURL);
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64EncodedAuthenticationString);
 
-        var content = new MultipartFormDataContent("-----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
+        var content = new MultipartFormDataContent("--------------" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
         content.Add(new StreamContent(new MemoryStream(docContent)), "file", docFilename);
         content.Add(new StringContent("createDocument"), "\"cmisAction\"");
         content.Add(new StringContent("cmis:objectTypeId"), "\"propertyId[0]\"");
         content.Add(new StringContent("cmis:document"), "\"propertyValue[0]\"");
         content.Add(new StringContent("cmis:name"), "\"propertyId[1]\"");
         content.Add(new StringContent(name), "\"propertyValue[1]\"");
-        content.Add(new StringContent("cmis:secondaryObjectTypeIds"), "\"propertyId[3]\"");
-        content.Add(new StringContent("P:de:" + specialType), "\"propertyValue[3]\"");
-        int indexContent = 4;
+        content.Add(new StringContent("cmis:secondaryObjectTypeIds"), "\"propertyId[2]\"");
+        content.Add(new StringContent("P:de:" + specialType), "\"propertyValue[2]\"");
+        int indexContent = 3;
         foreach (KeyValuePair<string, string> entry in metadata)
         {
             content.Add(new StringContent(entry.Key), "\"propertyId[" + indexContent + "]\"");

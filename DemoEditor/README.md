@@ -33,6 +33,8 @@ If you want to debug the application, make some changes to it in order to follow
 
 ## Installation
 
+### Setting up the hosts
+
 Even if everything is installed in the local machine, it makes it much easier to use aliases, so you will need to edit your `hosts` file (`/etc/hosts` for Linux, `C:\Windows\System32\drivers\etc\hosts` for Windows) and add the following lines:
 
 ```
@@ -46,6 +48,8 @@ Even if everything is installed in the local machine, it makes it much easier to
 127.0.0.1 edm
 127.0.0.1 mom
 ```
+
+### Running the services
 
 In order to avoid as much network conflicts as possible, the main application is exposed on port 88 instead of the default port 80. No HTTPS is used, again with the objective of simplifying as much as possible the deployment of the sample information system.
 
@@ -63,20 +67,80 @@ cd DemoEditor
 docker compose up -d
 ```
 
-## External Electronic Document Management system (option)
+### Defining IAM
 
-Starting in version 0.6, we also install an Alfresco system. Since this uses quite a lot of resources and its use is anecdotical in the sample (basically just to show how to correctly externalize document management), all the necessary services are kept in a separate Docker Compose file. The file used can be obtained at https://github.com/Alfresco/acs-deployment/blob/master/docker-compose/community-docker-compose.yml and a copy is provided at the root of the present repository. This file is then included in the main `docker-compose.yml` file, which makes it easy to simply suppress the reference if your computer is too limited in resources to make the whole stack work (the code has been made in order for the test scenarios to remain executable even if no EDM is provided).
+The Identity and Authorization Management server (Apache Keycloak, in our case) has been activated in the Docker Compose service for this version, and must be configured:
+1. Connect to http://iam:8088/admin/master/console/, using the credentials defined in the `docker-compose.yml` file.
+2. Create a realm called `demoeditor`.
+3. Add 3 realm roles, named `editor`, `director` and `author`.
+4. Create a client with `portal` as its id, and use default in the `Capability config` tab of the wizzard.
+5. In the following step, add the login-callback, logout-callback and web origins for localhost, but also ports 81 and 82.
 
-As this complex Docker Compose included file defines port 8080 as its principal exposition and uses it in most of its services, internally as well as externally, it has been decided to switch the Apache Keycloak IAM exposition port to 8088 in the main Docker Compose file to avoid conflict. The documentation has been changed accordingly, and the code remains as such, except for the accesses from the Single Page Application that have been modified. The Postman collection file has also been updated. The server calls remain the same because they use internal ports, all services inside Docker Compose being on shared networks. Note that you will have to recreate your users when changing the IAM port, and that notifications to the old users will be lost (it may be better to clear the whole `users` collection in the database).
+The content should be like follows (the ports are the one inside Docker Compose, not the exposed ones):
 
-If you want to run the example information system without any EDM, simply comment the first two lines of `docker-compose.yml` like this before running `docker compose up -d`:
+![](images/ClientSettings.png)
 
-``` yaml
-# include:
-#   - alfresco-community-docker-compose.yml
-services:
-  (...)
+6. Click the `portal-dedicated` link in the `Client scopes` tab.
+7. Add the predefined mapper called `realm roles`.
+8. In this new mapper, activate the `Add to ID token` setting.
+10. Add a `francesca` user.
+11. Assign this account the `director` role.
+
+Note that an export of the realm settings is provided in the `resources` folder, to speed up the process (to import, browse the file when in the `create realm` command; you will need to re-create the users, though). In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
+
+### Injecting some data
+
+The files [DemoEditor.postman_collection.json](resources/DemoEditor.postman_collection.json) and [DemoEditor.postman_environment.json](resources/DemoEditor.postman_environment.json) can be imported into Postman to respectively create a collection of API calls and an environment, both called `DemoEditor`. You will find in the collection some operations to create sample data:
+
+![](images/APIPostman.png)
+
+Using the `DemoEditor` is needed to point correctly to the API implementations:
+
+![](images/EnvPostman.png)
+
+The commands use the variables of the environment in order for you to quickly adapt to your own setting. I recommend you run at least the `Create author` and `Create book` operations:
+
+![](images/CreateBook.png)
+
+Since we have activated authentication and authorization in this version, it is necessary to edit the `Authorization` parameters of the `DemoEditor` collection (all levels below inherit from it), and obtain an OAuth 2.0 token, with such a configuration to retrieve it from Keycloak (check the book for all details):
+
+![](images/PostmanToken.png)
+
+### Batch import of data
+
+Sending data by hand is not very effective, so we will take advantage of the `import` volume declared in the Docker Compose file and use the following command to load the Excel workbook provided in the folder called `resources` (note that all commands are provided Linux-style; if you are using Windows, please operate them through WSL):
+
 ```
+docker run --rm -v ./resources/DemoEditor-BooksCatalog.xlsx:/tmp/DemoEditor-BooksCatalog.xlsx -v demoeditor_import:/tmp/data ubuntu cp /tmp/DemoEditor-BooksCatalog.xlsx /tmp/data
+```
+
+Once this is done, you may use the following Postman operation to integrate the content from the Excel workbook:
+
+![](images/Import.png)
+
+A GUI to inspect content of the MongoDB database is also provided in this version, with credentials visible in the `docker-compose.yml` file to connect to such an interface:
+
+![](images/DBGUI.png)
+
+### Defining the middle office behaviour
+
+In order for the middle office to work properly, it is necessary to create a template definition, by using the Postman collection, and in particular the `Declare template` operation under folder `MiddleOffice`:
+
+![](images/TemplateMiddleOffice.png)
+
+### External Electronic Document Management system (option)
+
+Starting in version 0.6, we also install an Alfresco system. Since this uses quite a lot of resources and its use is anecdotical in the sample (basically just to show how to correctly externalize document management), this is left to a separate Docker Compose installation. The file used can be obtained at https://github.com/Alfresco/acs-deployment/blob/master/docker-compose/community-docker-compose.yml and a copy is provided at the root of the present repository. Note that the code has been written in such a way that the absence of the EDM does not normally cause any bug, and does not prevent the correct execution of the business process. Only the steps associated with files will be skipped or ignored.
+
+As this complex Docker Compose defines port 8080 as its principal exposition and uses it in most of its services, internally as well as externally, it has been decided to switch the Apache Keycloak IAM exposition port to 8088 to avoid conflict. The documentation has been changed accordingly, and the code remains as such, except for the accesses from the Single Page Application that have been modified. The Postman collection file has also been updated. The server calls remain the same because they use internal ports, all services inside Docker Compose being on shared networks. Note that you will have to recreate your users when changing the IAM port, and that notifications to the old users will be lost (it may be better to clear the whole `users` collection in the database).
+
+To run the Alfresco set of services, use the following command:
+
+```
+docker compose -f alfresco-community-docker-compose.yml up -d
+```
+
+**Do not try to mix the two Docker Compose files, as they both use a MOM and a conflict can arise on port 5672 even if the `mom` service has been reexposed externally on 5673. Also, when two Docker Compose files are executed in the same directory, there is a message stating that some orphans services are present when running them: this is normal, as each Docker Compose application considers the other one as services with the same folder name but not appearing in their own list. If this bothers you, you can put the EDM Docker Compose file in another directory.**
 
 Once everything is ready (it can take a few minutes at first initialization), you can connect to the interface Share from port 8080 on the 127.0.0.1 local host (or with the `edm` alias). Login is achieved with the default `admin` / `admin` credentiels:
 
@@ -120,68 +184,9 @@ The EDM system should now be ready for use in the Information System business pr
 
 ![](images/AlfrescoParams.png)
 
-## Defining IAM
-
-The Identity and Authorization Management server (Apache Keycloak, in our case) has been activated in the Docker Compose service for this version, and must be configured:
-1. Connect to http://iam:8088/admin/master/console/, using the credentials defined in the `docker-compose.yml` file.
-2. Create a realm called `demoeditor`.
-3. Add 3 realm roles, named `editor`, `director` and `author`.
-4. Create a client with `portal` as its id, and use default in the `Capability config` tab of the wizzard.
-5. In the following step, add the login-callback, logout-callback and web origins for localhost, but also ports 81 and 82.
-
-The content should be like follows (the ports are the one inside Docker Compose, not the exposed ones):
-
-![](images/ClientSettings.png)
-
-6. Click the `portal-dedicated` link in the `Client scopes` tab.
-7. Add the predefined mapper called `realm roles`.
-8. In this new mapper, activate the `Add to ID token` setting.
-10. Add a `francesca` user.
-11. Assign this account the `director` role.
-
-Note that an export of the realm settings is provided in the `resources` folder, to speed up the process (to import, browse the file when in the `create realm` command; you will need to re-create the users, though). In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
-
-## Injecting some data
-
-The files [DemoEditor.postman_collection.json](resources/DemoEditor.postman_collection.json) and [DemoEditor.postman_environment.json](resources/DemoEditor.postman_environment.json) can be imported into Postman to respectively create a collection of API calls and an environment, both called `DemoEditor`. You will find in the collection some operations to create sample data:
-
-![](images/APIPostman.png)
-
-Using the `DemoEditor` is needed to point correctly to the API implementations:
-
-![](images/EnvPostman.png)
-
-The commands use the variables of the environment in order for you to quickly adapt to your own setting. I recommend you run at least the `Create author` and `Create book` operations:
-
-![](images/CreateBook.png)
-
-Since we have activated authentication and authorization in this version, it is necessary to edit the `Authorization` parameters of the `DemoEditor` collection (all levels below inherit from it), and obtain an OAuth 2.0 token, with such a configuration to retrieve it from Keycloak (check the book for all details):
-
-![](images/PostmanToken.png)
-
-## Batch import of data
-
-Sending data by hand is not very effective, so we will take advantage of the `import` volume declared in the Docker Compose file and use the following command to load the Excel workbook provided in the folder called `resources` (note that all commands are provided Linux-style; if you are using Windows, please operate them through WSL):
-
-```
-docker run --rm -v ./resources/DemoEditor-BooksCatalog.xlsx:/tmp/DemoEditor-BooksCatalog.xlsx -v demoeditor_import:/tmp/data ubuntu cp /tmp/DemoEditor-BooksCatalog.xlsx /tmp/data
-```
-
-Once this is done, you may use the following Postman operation to integrate the content from the Excel workbook:
-
-![](images/Import.png)
-
-A GUI to inspect content of the MongoDB database is also provided in this version, with credentials visible in the `docker-compose.yml` file to connect to such an interface:
-
-![](images/DBGUI.png)
-
-## Defining the middle office behaviour
-
-In order for the middle office to work properly, it is necessary to create a template definition, by using the Postman collection, and in particular the `Declare template` operation under folder `MiddleOffice`:
-
-![](images/TemplateMiddleOffice.png)
-
 ## Running the application
+
+### Accessing the GUI
 
 Going to `http://portal:88` should provide the following interface (if an error occurs, check the 88 port is not already used in another process):
 
@@ -213,7 +218,7 @@ If you log out, create a user with a simple `editor` role, which provides fewer 
 
 And that's about it for this second version of the sample application. The evolution to a secured system has been realized without touching any of the business function, but that sounds logical. The real test of the architecture will be when adding some business-related features, which will be the subjects of the following versions (see other branches of the repository).
 
-## Executing the book creation process
+### Starting the book creation process
 
 Still in the portal, under the `Books` menu, click on the `Start project for a new book`. This should bring you to a form where you will be able to progress step by step in a book creation:
 
@@ -225,7 +230,7 @@ When in second step, you should drag and drop some authors to send them an invit
 
 Once the choice is validated, the process integrated in the API will create a request in the middle office service and send an invite to the authors. The invite can be found in the mail server:
 
-![](images/images/AuthorInvite.png)
+![](images/AuthorInvite.png)
 
 The content of the mail is the form coming from the middle office:
 
@@ -234,6 +239,28 @@ The content of the mail is the form coming from the middle office:
 If you click on the first button, another mail will be sent explaining the author has accepted the proposal. There is no action attached to the second choice. Finally, the third choice will send a mail to the editors in order to ask them to call the author:
 
 ![](images/RequestForContact.png)
+
+### Creating an authoring contract
+
+Back to the portal, the next step is about entering the author that has been chosen by the editors once all the invitation messages have been received and, for some, responded to. The work of the editors to select which is the best person is something considered manual at this stage of the information system, but we could imagine that a decision process, with author responses evaluation, could be added in the future. It will be easy to add due to the design of the system, or even to replace the whole process with an external BPMN engine, since all interfaces have been standardized.
+
+![](images/ChoosingAuthor.png)
+
+As soon as the step is validated, the fact that there is a change in the author of the book triggers a message that we can see in the RabbitMQ management console:
+
+![](images/RabbitMQ.png)
+
+This message is received by the `contracts` service that generates a PDF and sends it to the EDM service, which is Alfresco in our case. After a few moments, you can notice that the document is available (and indexed) inside the EDM "Share" interface:
+
+![](images/ContractAlfresco.png)
+
+Clicking on the document shows a preview of the contract generated in PDF and the operations available in Alfresco:
+
+![](images/DetailsContract.png)
+
+Going down in the interface, on the right in the `Properties` tab, you will find the metadata associated to the contract:
+
+![](images/MetadataContract.png)
 
 ## Notes
 

@@ -1,5 +1,3 @@
-include:
-  - alfresco-community-docker-compose.yml
 services:
   db:
     image: mongo:4.4
@@ -88,14 +86,14 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=rapido
       - RABBITMQ_DEFAULT_PASS=k5rXH6wmBhE2bukfXFsz
-      - EDM_CMIS_URL=http://edm:8080/alfresco/api/-default-/public/cmis/versions/1.1/browser
-      - EDM_BASE_FOLDER=/root/DemoEditor/
-      - EDM_CMIS_SERVICEACCOUNT_NAME=Administrator
-      - EDM_CMIS_SERVICEACCOUNT_PASS=Administrator
+      # - EDM_CMIS_URL=http://host.docker.internal:8080/alfresco/api/-default-/public/cmis/versions/1.1/browser
+      # - EDM_BASE_FOLDER=/root/DemoEditor/
+      # - EDM_CMIS_SERVICEACCOUNT_NAME=admin
+      # - EDM_CMIS_SERVICEACCOUNT_PASS=admin
     networks:
       - back
     extra_hosts:
-      - "host.docker.internal:172.17.0.1"
+      - "host.docker.internal:host-gateway"
     stdin_open: true
     tty: true
   mail:
