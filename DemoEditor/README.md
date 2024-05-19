@@ -53,7 +53,7 @@ If you use the command line to retrieve the necessary files (you may also downlo
 
 ```
 git clone https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET
-git checkout v0.5
+git checkout [code of the version you want to work on]
 ```
 
 Running the application is then as simple as launching Docker Compose on the right file:
@@ -65,14 +65,17 @@ docker compose up -d
 
 ## External Electronic Document Management system (option)
 
-Starting in version 0.6, we also install an Alfresco system. Since this uses quite a lot of resources and its use is anecdotical in the sample (basically just to show how to correctly externalize document management), this is left to a separate Docker Compose installation. The file used can be obtained at https://github.com/Alfresco/acs-deployment/blob/master/docker-compose/community-docker-compose.yml and a copy is provided at the root of the present repository.
+Starting in version 0.6, we also install an Alfresco system. Since this uses quite a lot of resources and its use is anecdotical in the sample (basically just to show how to correctly externalize document management), all the necessary services are kept in a separate Docker Compose file. The file used can be obtained at https://github.com/Alfresco/acs-deployment/blob/master/docker-compose/community-docker-compose.yml and a copy is provided at the root of the present repository. This file is then included in the main `docker-compose.yml` file, which makes it easy to simply suppress the reference if your computer is too limited in resources to make the whole stack work (the code has been made in order for the test scenarios to remain executable even if no EDM is provided).
 
-As this complex Docker Compose defines port 8080 as its principal exposition and uses it in most of its services, internally as well as externally, it has been decided to switch the Apache Keycloak IAM exposition port to 8088 to avoid conflict. The documentation has been changed accordingly, and the code remains as such, except for the accesses from the Single Page Application that have been modified. The Postman collection file has also been updated. The server calls remain the same because they use internal ports, all services inside Docker Compose being on shared networks. Note that you will have to recreate your users when changing the IAM port, and that notifications to the old users will be lost (it may be better to clear the whole `users` collection in the database).
+As this complex Docker Compose included file defines port 8080 as its principal exposition and uses it in most of its services, internally as well as externally, it has been decided to switch the Apache Keycloak IAM exposition port to 8088 in the main Docker Compose file to avoid conflict. The documentation has been changed accordingly, and the code remains as such, except for the accesses from the Single Page Application that have been modified. The Postman collection file has also been updated. The server calls remain the same because they use internal ports, all services inside Docker Compose being on shared networks. Note that you will have to recreate your users when changing the IAM port, and that notifications to the old users will be lost (it may be better to clear the whole `users` collection in the database).
 
-To run the Alfresco set of services, use the following command:
+If you want to run the example information system without any EDM, simply comment the first two lines of `docker-compose.yml` like this before running `docker compose up -d`:
 
-```
-docker compose -f alfresco-community-docker-compose.yml up -d
+``` yaml
+# include:
+#   - alfresco-community-docker-compose.yml
+services:
+  (...)
 ```
 
 Once everything is ready (it can take a few minutes at first initialization), you can connect to the interface Share from port 8080 on the 127.0.0.1 local host (or with the `edm` alias). Login is achieved with the default `admin` / `admin` credentiels:
