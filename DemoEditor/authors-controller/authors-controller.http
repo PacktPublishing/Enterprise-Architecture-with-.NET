@@ -1,6 +1,0 @@
-@authors_controller_HostAddress = http://localhost:5265
-
-GET {{authors_controller_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
