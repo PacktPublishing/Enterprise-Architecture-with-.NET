@@ -291,6 +291,18 @@ During this time, a message was sent back on the MOM (the queue is called `Contr
 
 ![](images/Orchestration.png)
 
+### Using reporting software
+
+A `DemoEditor.pbix` file is provided under the `resources` folder. It is used as a sample of what one can do with Power BI connected to the two main API endpoints of the system, namely Authors and Books. **API keys should be treated as secrets but have been provided here in clear text in the `appsettings.json` file for ease of setup. Please change them and use orchestrator secrets or at least environment variables in your production systems.**
+
+This file is already plugged to the API endpoints using the sample keys, as can be seen in the properties of the queries:
+
+![](images/APIKeysPowerBI.png)
+
+Opening it will show you a very simple reporting dashboard:
+
+![](images/PowerBIDashboard.png)
+
 ## Notes
 
 All projects for the sample Information System have been provided in a single repository, with all versions aligned to the branches of this repository. In a real production context, they would have been completely separated, the only link remaining being the `common` project, which only carries contracts-related objects. And even this is questionable if you want to reach complete version decoupling. It should at least be provided in versioned components, each service being responsible for using the right version of the entities.

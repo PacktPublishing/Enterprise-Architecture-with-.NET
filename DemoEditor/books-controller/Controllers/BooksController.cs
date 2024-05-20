@@ -61,8 +61,20 @@ public class BooksController : ControllerBase
                 Book b = new Book() {
                     EntityId = i.ToString().PadLeft(4, '0'),
                     ISBN = (string)cells[0].Value,
-                    Title = (string)cells[1].Value
+                    Title = (string)cells[1].Value,
+                    Editing = new EditingPetal() {
+                        Status = new Status { Value = "edit" }
+                    },
+                    Sales = new SalesPetal() {
+                        NumberOfCopiesSold = int.Parse((string)cells[5].Value) // Beware of FastExcel bug that still lurks (https://github.com/rap2hpoutre/fast-excel/issues/32) and use value for each edition in order to avoid index-skipping of empty cell
+                    }
                 };
+
+                try
+                {
+                    if (((string)cells[6].Value).StartsWith("### FINISHED")) b.Editing.Status.Value = "sell";
+                } 
+                catch {}
 
                 HttpClient client = GetAuthenticatedClient("Authors");
                 try
@@ -78,12 +90,10 @@ public class BooksController : ControllerBase
                     if (authors.Length > 0) 
                     {
                         // URLs are hardcoded in order to better explain what is done by the code
-                        b.Editing = new EditingPetal() {
-                            mainAuthor = new AuthorLink() {
-                                Rel = "dc.creator",
-                                Href = "http://authors:82/Authors/" + authors[0].EntityId,
-                                Title = authors[0].FirstName + " " + authors[0].LastName.ToUpper(),
-                            }
+                        b.Editing.mainAuthor = new AuthorLink() {
+                            Rel = "dc.creator",
+                            Href = "http://authors:82/Authors/" + authors[0].EntityId,
+                            Title = authors[0].FirstName + " " + authors[0].LastName.ToUpper(),
                         };
                     }
                 }

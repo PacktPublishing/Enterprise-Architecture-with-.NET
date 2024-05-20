@@ -27,7 +27,8 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -36,7 +37,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"entityId\": \"0024\",\r\n    \"isbn\": \"978-2409002206\",\r\n    \"title\": \"Docker, 4th edition\",\r\n    \"numberOfPages\": 812,\r\n    \"publishDate\": \"2019-09-01\",\r\n    \"editing\": {\r\n        \"numberOfChapters\": 15,\r\n        \"status\": { \"value\": \"available\" },\r\n        \"mainAuthor\": {\r\n            \"rel\": \"dc:creator\",\r\n            \"href\": \"http://authors:82/Authors/jpgou\",\r\n            \"title\": \"JP Gouigoux\",\r\n            \"userEmailAddress\": \"jp.gouigoux@free.fr\"\r\n        }\r\n    },\r\n    \"sales\": {\r\n        \"price\": {\r\n            \"value\": 54.30,\r\n            \"monetaryUnit\": \"EUR\"\r\n        },\r\n        \"weightInGrams\": 1245\r\n    }\r\n}",
+							"raw": "{\r\n    \"entityId\": \"0024\",\r\n    \"isbn\": \"978-2409002206\",\r\n    \"title\": \"Docker, 4th edition\",\r\n    \"numberOfPages\": 812,\r\n    \"publishDate\": \"2019-09-01\",\r\n    \"editing\": {\r\n        \"numberOfChapters\": 15,\r\n        \"status\": { \"value\": \"write\" },\r\n        \"mainAuthor\": {\r\n            \"rel\": \"dc:creator\",\r\n            \"href\": \"http://authors:82/Authors/jpgou\",\r\n            \"title\": \"JP Gouigoux\",\r\n            \"userEmailAddress\": \"jp.gouigoux@free.fr\"\r\n        }\r\n    },\r\n    \"sales\": {\r\n        \"price\": {\r\n            \"value\": 54.30,\r\n            \"monetaryUnit\": \"EUR\"\r\n        },\r\n        \"weightInGrams\": 1245\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -296,13 +297,20 @@
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "ZE5egiL0iL5Y3dzREUBSUYVUwUkN6CBxzdYcEgNDrRhMbDpkBF7e4d4Kib46dwL9",
+								"disabled": true
+							}
+						],
 						"url": {
 							"raw": "{{BooksURL}}/Books/",
 							"host": [
@@ -1105,13 +1113,20 @@
 									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "aH78fgTHD87hdbjqsjytsd56hver563ZVJEAFVZEGpHDZCFj5d4GsZaC45ssgbDG",
+								"disabled": true
+							}
+						],
 						"url": {
 							"raw": "{{AuthorsURL}}/Authors",
 							"host": [
@@ -1461,6 +1476,63 @@
 					"response": []
 				},
 				{
+					"name": "Delete folder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisAction",
+									"value": "delete",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cmisAction",
+									"value": "delete",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor",
+								"TestContract"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create folder",
 					"event": [
 						{
@@ -1686,6 +1758,32 @@
 					"response": []
 				},
 				{
+					"name": "Retrieve document content",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
+							"host": [
+								"{{CMISURL}}"
+							],
+							"path": [
+								"root",
+								"DemoEditor",
+								"TestContract"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Query",
 					"request": {
 						"method": "POST",
@@ -1773,89 +1871,6 @@
 									"key": "q",
 									"value": "select * from de:AuthorContract where de:authorId='jpgou'"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Retrieve document content",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
-							"host": [
-								"{{CMISURL}}"
-							],
-							"path": [
-								"root",
-								"DemoEditor",
-								"TestContract"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete document",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "cmisAction",
-									"value": "delete",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{CMISURL}}/root/DemoEditor/TestContract",
-							"host": [
-								"{{CMISURL}}"
-							],
-							"path": [
-								"root",
-								"DemoEditor",
-								"TestContract"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete folder",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "cmisAction",
-									"value": "delete",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{CMISURL}}/root/DemoEditor",
-							"host": [
-								"{{CMISURL}}"
-							],
-							"path": [
-								"root",
-								"DemoEditor"
 							]
 						}
 					},

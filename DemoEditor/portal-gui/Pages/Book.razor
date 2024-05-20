@@ -133,8 +133,8 @@ else
             </div>
             
             <h2>
-                <span>Step 6 [archive]: book is not active anymore</span>
-                @if (IsCurrentStep("archive")) { <span><b> (CURRENT STEP)</b></span> }
+                <span>Step 6 [archived]: book is not active anymore</span>
+                @if (IsCurrentStep("archived")) { <span><b> (CURRENT STEP)</b></span> }
             </h2>
         </EditForm>
     </div>
@@ -230,7 +230,7 @@ else
             case "search": nextValue = "write"; break;
             case "write": nextValue = "edit"; break;
             case "edit": nextValue = "sell"; break;
-            case "sell": nextValue = "archive"; break;
+            case "sell": nextValue = "archived"; break;
             default: throw new NotSupportedException("Invalid book status value: " + currentBook.Editing.Status.Value);
         }
         HandleSubmit();
