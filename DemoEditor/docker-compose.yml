@@ -27,8 +27,8 @@ services:
   books:
     image: demoeditor/books-api:0.7
     build:
-      context: ./books-controller
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: books-controller/Dockerfile
     environment:
       - RABBITMQ_DEFAULT_USER=rapido
       - RABBITMQ_DEFAULT_PASS=k5rXH6wmBhE2bukfXFsz
@@ -42,8 +42,8 @@ services:
   authors:
     image: demoeditor/authors-api:0.7
     build:
-      context: ./authors-controller
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: authors-controller/Dockerfile
     ports:
       - 82:8080
     networks:
@@ -52,8 +52,8 @@ services:
   mo:
     image: demoeditor/middleoffice:0.7
     build:
-      context: ./
-      dockerfile: Dockerfile-middleoffice
+      context: .
+      dockerfile: middleoffice/Dockerfile
     ports:
       - 83:8080
     networks:
@@ -62,8 +62,8 @@ services:
   users:
     image: demoeditor/users-api:0.7
     build:
-      context: ./
-      dockerfile: Dockerfile-users-api
+      context: .
+      dockerfile: users-api/Dockerfile
     ports:
       - 84:8080
     networks:

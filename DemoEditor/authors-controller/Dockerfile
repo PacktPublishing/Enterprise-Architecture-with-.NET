@@ -14,9 +14,10 @@
 # Create a stage for building the application.
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 
-COPY . /source
+COPY ./authors-controller /source/authors-controller
+COPY ./common /source/common
 
-WORKDIR /source
+WORKDIR /source/authors-controller
 
 # This is the architecture you’re building for, which is passed in by the builder.
 # Placing it here allows the previous steps to be cached across architectures.
