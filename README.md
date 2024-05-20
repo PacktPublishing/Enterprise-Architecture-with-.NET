@@ -44,7 +44,7 @@ With the following software and hardware list you can run all code files present
 | Software/ Hardware required | OS required/ Other requirements |
 | ------------------------------------ | ----------------------------------- |
 | .NET 8.0 SDK | Windows, macOS, or Linux |
-| Visual Studio Code | Windows, macOS, or Linux/ |
+| Visual Studio Code | Windows, macOS, or Linux |
 | Git | Windows, macOS, or Linux |
 | Docker | Windows, macOS, or Linux |
 | Postman | Windows, macOS, or Linux|
