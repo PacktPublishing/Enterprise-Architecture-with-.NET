@@ -9,10 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using DemoEditor.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication().AddJwtBearer(options => {
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options => {
     options.RequireHttpsMetadata = false;
     options.MetadataAddress = "http://iam:8080/realms/demoeditor/.well-known/openid-configuration";
     options.TokenValidationParameters = new TokenValidationParameters
@@ -23,11 +27,18 @@ builder.Services.AddAuthentication().AddJwtBearer(options => {
 });
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 builder.Services.AddSingleton<IAuthorizationHandler, EditorAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, EditorApiKeyAuthorizationHandler>();
 builder.Services.AddAuthorization(o => {
     o.AddPolicy("author", policy => policy.RequireClaim("realm_roles", "author"));
     o.AddPolicy("editor", policy => policy.Requirements.Add(new EditorRequirement()));
+    o.AddPolicy("editor-apikey", policy => {
+        policy.AddAuthenticationSchemes(new[] { JwtBearerDefaults.AuthenticationScheme });
+        policy.Requirements.Add(new EditorApiKeyRequirement()); 
+    });
     o.AddPolicy("director", policy => policy.RequireClaim("realm_roles", "director"));
 });
+
+builder.Services.AddTransient<IApiKeyValidation, ApiKeyValidation>();
 
 builder.Services.AddHttpContextAccessor();
 

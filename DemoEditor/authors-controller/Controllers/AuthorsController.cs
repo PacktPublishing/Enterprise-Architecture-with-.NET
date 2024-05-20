@@ -11,7 +11,6 @@ using System.Net.Mail;
 
 namespace authors_controller.Controllers;
 
-[Authorize(Policy = "editor")]
 [ApiController]
 [Route("[controller]")]
 public class AuthorsController : ControllerBase
@@ -38,6 +37,7 @@ public class AuthorsController : ControllerBase
         Database = new MongoClient(ConnectionString).GetDatabase("authors");
     }
 
+    [Authorize(Policy = "editor")]
     [HttpPut]
     [Route("Subscribe")]
     public IActionResult Subscribe([FromQuery] string callbackURL, [FromQuery(Name = "$filter")] string filter)
@@ -86,6 +86,7 @@ public class AuthorsController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Policy = "editor-apikey")]
     [HttpGet]
     public IActionResult Get(
         [FromQuery(Name = "$orderby")] string orderby = "",
@@ -145,6 +146,7 @@ public class AuthorsController : ControllerBase
         return new JsonResult(result);
     }
 
+    [Authorize(Policy = "editor")]
     [HttpGet]
     [Route("$count")]
     public long GetAuthorsCount()
@@ -153,6 +155,7 @@ public class AuthorsController : ControllerBase
         return Database.GetCollection<Author>("authors-bestsofar").CountDocuments(r => true);
     }
 
+    [Authorize(Policy = "editor")]
     [HttpGet]
     [Route("{entityId}")]
     public IActionResult GetUnique(string entityId, [FromQuery] DateTimeOffset? providedValueDate = null)
@@ -191,6 +194,7 @@ public class AuthorsController : ControllerBase
         }
     }
 
+    [Authorize(Policy = "editor")]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] Author author, 
@@ -211,6 +215,7 @@ public class AuthorsController : ControllerBase
         return await Patch(author.EntityId, equivPatches, providedValueDate);
     }
     
+    [Authorize(Policy = "editor")]
     [HttpPatch]
     [Route("{entityId}")]
     public async Task<IActionResult> Patch(

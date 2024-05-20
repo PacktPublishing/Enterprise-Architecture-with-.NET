@@ -12,7 +12,6 @@ using System.Net.Mail;
 
 namespace books_controller.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class BooksController : ControllerBase
@@ -140,7 +139,7 @@ public class BooksController : ControllerBase
         return Ok();
     }
 
-    [Authorize(Policy = "editor")]
+    [Authorize(Policy = "editor-apikey")]
     [HttpGet]
     public IActionResult Get(
         [FromQuery(Name = "$orderby")] string orderby = "",
