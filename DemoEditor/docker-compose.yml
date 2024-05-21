@@ -94,6 +94,7 @@ services:
       - back
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    restart: always
     stdin_open: true
     tty: true
   mail:
