@@ -199,7 +199,11 @@ Do not forget to activate the two workflows if they have not been upon creation:
 
 ![](images/Workflows.png)
 
-You will also need to adjust the tasks requiring authentication for the whole system to work. For example, on the import task of the second workflow, a Keycloak user with `director` role must be provided using the OAuth2 mode:
+Since the export does not include the password, for obvious security reasons, it is normal that, once you import the workflows, they appear with the following errors:
+
+![](images/MissingCredentials.png)
+
+You will need to adjust the tasks requiring authentication for the whole system to work. For example, on the import task of the second workflow, a Keycloak user with `director` role must be provided using the OAuth2 mode:
 
 ![](images/Credentials.png)
 
