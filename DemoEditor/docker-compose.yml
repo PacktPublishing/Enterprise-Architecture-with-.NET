@@ -94,12 +94,12 @@ services:
       - back
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    restart: always
+    restart: on-failure
     stdin_open: true
     tty: true
   mail:
     image: mailhog/mailhog
-    restart: always
+    restart: on-failure
     ports:
       - 1025:1025
       - 8025:8025      

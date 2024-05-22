@@ -209,7 +209,7 @@ You will need to adjust the tasks requiring authentication for the whole system 
 
 As indicated in the form, you will need to add `http://localhost:5678/rest/oauth2-credential/callback` as a valid redirection URL in the Keycloak customization of the `portal` client if you want to reuse it for this purpose. Be careful that, if you run in local mode and HTTP, the redirection mechanism may force you to externalize the IAM in its own Docker Compose file, just like as been done for the EDM.
 
-Note that you may receive an error message upon activation of the n8n workflow, stating that the queue `ContractGenerated` does not exist. This may be due to the fact that the `contracts` service is not up and running. It has been passed with a `restart: always` option to prevent this problem. Also, you may have to send a first request for contract by chosing a main author for a new book to make this queue visible. Since all is inside robust queues, nothing is lost anyway and, once all the setup is correct, you will find the messages that had not been treated before, but not lost.
+Note that you may receive an error message upon activation of the n8n workflow, stating that the queue `ContractGenerated` does not exist. This may be due to the fact that the `contracts` service is not up and running. It has been passed with a `restart: on-failure` option to prevent this problem. Also, you may have to send a first request for contract by chosing a main author for a new book to make this queue visible. Since all is inside robust queues, nothing is lost anyway and, once all the setup is correct, you will find the messages that had not been treated before, but not lost.
 
 ### PowerBI reporting
 
