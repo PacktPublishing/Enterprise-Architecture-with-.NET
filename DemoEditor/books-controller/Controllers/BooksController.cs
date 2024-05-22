@@ -9,6 +9,7 @@ using books_controller.Tools;
 using Microsoft.AspNetCore.Authorization;
 using FastExcel;
 using System.Net.Mail;
+using System.IO;
 
 namespace books_controller.Controllers;
 
@@ -36,6 +37,25 @@ public class BooksController : ControllerBase
         _httpContextAccessor = httpContextAccessor;
         ConnectionString = config.GetValue<string>("BooksConnectionString") ?? "mongodb://db:27017";
         Database = new MongoClient(ConnectionString).GetDatabase("books");
+    }
+
+    [Authorize(Policy = "director")]
+    [HttpPut("ImportUpload")]
+    public async Task<IActionResult> ImportUploadedFile(IFormFile file)
+    {
+        try
+        {
+            var catalogFile = Path.GetTempFileName();
+            using (var stream = new FileStream(catalogFile, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return await ImportBooksCatalog(catalogFile);
+        }
+        catch
+        {
+            return BadRequest("Could not import file");
+        }
     }
 
     [Authorize(Policy = "director")]
