@@ -106,7 +106,7 @@ public class BooksController : ControllerBase
                 DateTimeOffset valueDateForMigratedData = new DateTimeOffset(2024, 1, 1, 0, 0, 0, new TimeSpan(1, 0, 0));
                 await this.Create(b, valueDateForMigratedData);
             }
-            return new OkObjectResult(string.Format("{0} lines have been imported", rows.Length));
+            return new OkObjectResult(string.Format("{0} lines have been imported", rows.Length - 1));
         }
     }
 
