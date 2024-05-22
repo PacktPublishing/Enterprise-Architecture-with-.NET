@@ -123,6 +123,13 @@ services:
       - back
     volumes:
       - import:/tmp/workflow
+  brms:
+    image: openpolicyagent/opa
+    ports:
+      - 8181:8181
+    command: --server --addr :8181
+    networks:
+      - back
 networks:
   front:
   back:

@@ -198,6 +198,12 @@ public class NotificationController : ControllerBase
         if (destination.Emails.Count() > 0 && origin is not null && origin.Emails.Count() > 0) channels.Add("email");
         if (priority == "high" && !string.IsNullOrEmpty(destination.Portal.UserEntityId)) channels.Add("portal");
         return channels;
+
+        // PUT http://localhost:8181/v1/policies/app/abac policy.rego
+        // PUT http://localhost:8181/v1/data data.json
+        // POST http://localhost:8181/v1/data/app/abac input.json
+        // '.result | .allow'
+        
     }
 
     private HttpClient GetAuthenticatedClient(string name)
