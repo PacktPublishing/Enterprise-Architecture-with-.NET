@@ -957,6 +957,34 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Import catalog (upload)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Code/Github/PacktPublishing/.NET-Architecture-for-Enterprise-Applications/DemoEditor/resources/DemoEditor-BooksCatalog.xlsx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BooksURL}}/Books/ImportUpload",
+							"host": [
+								"{{BooksURL}}"
+							],
+							"path": [
+								"Books",
+								"ImportUpload"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
