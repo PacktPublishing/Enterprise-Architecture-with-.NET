@@ -3,9 +3,6 @@ package app.abac
 import future.keywords
 import data.org_chart
 
-# =========================== TODO : traiter le cas de l'id de l'auteur répété dans la clé de data et dans le contenu JSON (et idem pour les livres)
-# =========================== TODO : mettre des URN à la place des identifiants simples
-
 ###################
 # GENERAL DECISION
 ###################
@@ -149,7 +146,6 @@ editors_on_books_from_authors_they_manage if {
 	b.id == input.book
 	user_hierarchy_ok	
 }
-# ======================== TODO : changer éventuellement l'org_chart qui devrait contenir des id d'auteurs sous les éditeurs, pas des users
 foundpath = path {
 	[path, _] := walk(org_chart)
 	some author in book_author
