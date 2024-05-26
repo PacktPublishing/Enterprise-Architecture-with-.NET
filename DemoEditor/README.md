@@ -359,4 +359,43 @@ Opening it will show you a very simple reporting dashboard:
 
 ## Notes
 
+### Structure of the project
+
 All projects for the sample Information System have been provided in a single repository, with all versions aligned to the branches of this repository. In a real production context, they would have been completely separated, the only link remaining being the `common` project, which only carries contracts-related objects. And even this is questionable if you want to reach complete version decoupling. It should at least be provided in versioned components, each service being responsible for using the right version of the entities.
+
+As an additional safety in case of incompatibility with new versions (in the long term, adjusting to major versions can get difficult) or if the Docker images corresponding to the old versions of dependencies were to disappear, they have been saved on the `demoeditor` Docker Hub repository. In case they would need to get used instead of the official images, the names of the images in the `docker-compose.yml` file should be prefixed with `demoeditor/` if they are not already. The images in the end should be like this:
+
+```
+demoeditor/mongo:4.4
+demoeditor/mongo-express:1.0.2
+demoeditor/keycloak:23.0.7
+demoeditor/mailhog:v1.0.1
+demoeditor/rabbitmq:3.13-management
+demoeditor/n8n:1.42.1
+demoeditor/opa:0.64.1
+demoeditor/statping-ng:v0.90.78
+```
+
+### Improvements on the project
+
+As any information system, the DemoEditor sample will never be considered as completely done. Its use was mostly to serve as a support for the concepts explained in the associated book, and this is why it has remained as unsophisticated as possible in the [v1.0](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v1.0/DemoEditor) version, which is the one in line with the print release of the book (May 2024). Still, the fact that no logs are present, that injection has not been used where it should have been, that models have not been shared (and are neither complete) and lots of other limitations remain a problem for a set of applications that is supposed to help readers learn about better coding. This is why, starting from version 1.0, additional changes will progressively be added to the application in order to show some possible improvements.
+
+I would be more than happy to welcome pull requests from readers or anyone finding this repository and willing to improve upon the existing system. Please remember, though, that this application has to serve as a pedagogical support for a book about business / IT alignment and its goal is to provide code as simple as possible to make the associated concepts clearer.
+
+Here is a non-exhaustive list of tasks and ideas:
+- Correct all code marked with a `TODO`
+- Add some traces for important operations
+- Include a simple log-reading mechanism (Portainer?)
+- Plug the traces to a centralized tracing system (Prometheus, for example, since it can receive data from statping)
+- Centralize a library with all models
+- Separate the DTO from the classes used for MongoDB persistance
+- Inject class instances like notification utility, etc.
+- Add some end-to-end tests on the portal
+- Add unit tests for the most complicated units, like the notification channel rules in OPA
+- Continue the process from the author's point of view, by exposing them the contract for review in a separate, simpler, EDM
+- Extend this external EDM with a One-Time Token mechanism for the authors to view the contract
+- Create a second implementation of BRMS using JBPM to compare ease of use with OPA
+- Add a centralized index data server that register for changes from the data referential and exposes pre-agregated data
+- Once more data and attributes are added, improve on the PowerBI report to generate something with more business value
+- Use secrets instead of hard-coded keys (only if it does not harm the readability of the exercise)
+- Test replacement of RabbitMQ by a Redis server

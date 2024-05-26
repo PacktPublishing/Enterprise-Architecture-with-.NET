@@ -98,7 +98,7 @@ services:
     stdin_open: true
     tty: true
   mail:
-    image: mailhog/mailhog
+    image: mailhog/mailhog:v1.0.1
     restart: on-failure
     ports:
       - 1025:1025
@@ -116,7 +116,7 @@ services:
     networks:
       - back
   bpm:
-    image: docker.n8n.io/n8nio/n8n
+    image: n8nio/n8n:1.42.1
     ports:
       - 5678:5678
     networks:
@@ -124,14 +124,14 @@ services:
     volumes:
       - import:/tmp/workflow
   brms:
-    image: openpolicyagent/opa
+    image: openpolicyagent/opa:0.64.1
     ports:
       - 8181:8181
     command: ["run", "--server", "--addr", ":8181"]
     networks:
       - back
   monitoring:
-    image: adamboutcher/statping-ng
+    image: adamboutcher/statping-ng:v0.90.78
     ports:
       - 8183:8080
     networks:
