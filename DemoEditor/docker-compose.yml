@@ -127,7 +127,7 @@ services:
     image: openpolicyagent/opa
     ports:
       - 8181:8181
-    command: --server --addr :8181
+    command: ["run", "--server", "--addr", ":8181"]
     networks:
       - back
 networks:

@@ -1390,6 +1390,33 @@
 			"name": "Notifications",
 			"item": [
 				{
+					"name": "Define policy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/C:/Code/Github/PacktPublishing/.NET-Architecture-for-Enterprise-Applications/DemoEditor/resources/NotificationPolicy.rego"
+							}
+						},
+						"url": {
+							"raw": "http://brms:8181/v1/policies/notification",
+							"protocol": "http",
+							"host": [
+								"brms"
+							],
+							"port": "8181",
+							"path": [
+								"v1",
+								"policies",
+								"notification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Notify address",
 					"request": {
 						"method": "POST",

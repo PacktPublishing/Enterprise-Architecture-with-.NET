@@ -5,6 +5,9 @@ using MongoDB.Driver;
 using System.Net.Mail;
 using System.Security.Claims;
 using users_api.Models;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 
 namespace users_api.Controllers;
 
@@ -114,6 +117,11 @@ public class NotificationController : ControllerBase
             await Database.GetCollection<BsonDocument>("user-messages").InsertOneAsync(userMsg.ToBsonDocument());
         }
 
+        if (channels.Contains("sms"))
+        {
+            Console.WriteLine("SMS notification is not supported: silent fail");
+        }
+
         return Ok();
     }
 
@@ -181,29 +189,124 @@ public class NotificationController : ControllerBase
         // contacts are filtered in order to leave only the work email and the mobile phone.
         result.Addresses.Clear();
         result.Phones.RemoveAll(p => p.IANAType != "cell");
-        result.Emails.RemoveAll(em => em.IANAType != "work");
+        //result.Emails.RemoveAll(em => em.IANAType != "work"); // Changed with the externalization of the notification channel retrieval service
 
         return result;
     }
 
     private async Task<List<string>> GetChannelsToUse(Contacts origin, Contacts destination, string priority)
     {
-        // TODO: this is typically where we could use a BRMS like OPA if the rules for notification start to get complicated,
-        // and they can because we already have several possible channels (snail mail, phone calls, SMS, list of messages
+        // This is typically where a BRMS like OPA is useful, since the rules for notification can get complicated.
+        // And they are because we already have several possible channels (snail mail, phone calls, SMS, list of messages
         // or toast popups in the portal GUI) and the channels (they can be multiple) depend on the contacts of the emitter
         // and of the receiver. In addition, we should take into account priority. Add to this the possible feature of taking
         // into account preferences from each diffent destination depending on workdays or weekends / time of the day / etc.,
-        // and you get an idea of why we should use a dedicated engine. But for now, we are going to be very simple in the choice.
-        List<string> channels = new();
-        if (destination.Emails.Count() > 0 && origin is not null && origin.Emails.Count() > 0) channels.Add("email");
-        if (priority == "high" && !string.IsNullOrEmpty(destination.Portal.UserEntityId)) channels.Add("portal");
-        return channels;
+        // and you get an idea of why we should use a dedicated engine. But as a failsafe mechanism, if it does not answer,
+        // we fall back on a simple decision algorithm.
+       List<string> channels = new();
+       if (destination.Emails.Count() > 0 && origin is not null && origin.Emails.Count() > 0) channels.Add("email");
+       if (priority == "high" && !string.IsNullOrEmpty(destination.Portal.UserEntityId)) channels.Add("portal");
 
-        // PUT http://localhost:8181/v1/policies/app/abac policy.rego
-        // PUT http://localhost:8181/v1/data data.json
-        // POST http://localhost:8181/v1/data/app/abac input.json
-        // '.result | .allow'
-        
+        // Preparing the context; in a better version, this would be done by unifying the Contacts class
+        StringBuilder sb = new();
+        sb.AppendLine("{");
+        sb.AppendLine("    \"origin\": {");
+        sb.AppendLine("        \"phones\": {");
+        foreach (Phone p in origin.Phones)
+        {
+            sb.AppendLine("            \"" + p.IANAType + "\": \"" + p.Number + "\",");
+        }
+        if (origin.Phones.Count() > 0) sb.Remove(sb.Length - 2, 1);
+        sb.AppendLine("        },");
+        sb.AppendLine("        \"emails\": {");
+        foreach (Email e in origin.Emails)
+        {
+            sb.AppendLine("            \"" + e.IANAType + "\": \"" + e.EmailAddress + "\",");
+        }
+        if (origin.Emails.Count() > 0) sb.Remove(sb.Length - 2, 1);
+        sb.AppendLine("        }");
+        sb.AppendLine("    },");
+        sb.AppendLine("    \"destination\": {");
+        sb.AppendLine("        \"phones\": {");
+        foreach (Phone p in destination.Phones)
+        {
+            sb.AppendLine("            \"" + p.IANAType + "\": \"" + p.Number + "\",");
+        }
+        if (destination.Phones.Count() > 0) sb.Remove(sb.Length - 2, 1);
+        sb.AppendLine("        },");
+        sb.AppendLine("        \"emails\": {");
+        foreach (Email e in destination.Emails)
+        {
+            sb.AppendLine("            \"" + e.IANAType + "\": \"" + e.EmailAddress + "\",");
+        }
+        if (destination.Emails.Count() > 0) sb.Remove(sb.Length - 2, 1);
+        sb.AppendLine("        },");
+        sb.AppendLine("        \"portal\": {");
+        sb.AppendLine("            \"user\": \"" + destination.Portal.UserEntityId + "\",");
+        sb.AppendLine("            \"mode\": \"" + destination.Portal.DisplayMode + "\"");
+        sb.AppendLine("        },");
+
+        // For now, the notification preferences of the destination user are hard-coded
+        sb.AppendLine("        \"preferences\": {");
+        sb.AppendLine("            \"workday\": {");
+        sb.AppendLine("                \"high\": [ \"portal\", \"email\", \"sms\" ],");
+        sb.AppendLine("                \"normal\": [ \"email\", \"portal\" ],");
+        sb.AppendLine("                \"low\": [ \"portal\" ]");
+        sb.AppendLine("            },");
+        sb.AppendLine("            \"worknight\": {");
+        sb.AppendLine("                \"high\": [ \"sms\" ],");
+        sb.AppendLine("                \"normal\": [ \"email\" ],");
+        sb.AppendLine("                \"low\": [ ]");
+        sb.AppendLine("            },");
+        sb.AppendLine("            \"dayoff\": {");
+        sb.AppendLine("                \"high\": [ \"sms\" ],");
+        sb.AppendLine("                \"normal\": [ ],");
+        sb.AppendLine("                \"low\": [ ]");
+        sb.AppendLine("            }");
+        sb.AppendLine("        }");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+
+        // Then preparing the data for the unique call to the OPA BRMS
+        string moment = "workday";
+        DateTime now = DateTime.Now;
+        if (now.Hour < 8 || now.Hour > 18) moment = "worknight";
+        if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday) moment = "dayoff";
+        string input = $$"""
+            {
+                "input": {
+                    "priority": "{{priority}}",
+                    "moment": "{{moment}}"
+                }
+            }
+            """;
+
+        // Calling externalized channel decision, taking into account that, in this version, it only sends one channel
+        try
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                await client.PutAsync("http://brms:8181/v1/data", new StringContent(sb.ToString()));
+                var output = await client.PostAsync("http://brms:8181/v1/data/notification", new StringContent(input));
+                string jsonResult = output.Content.ReadAsStringAsync().Result;
+                JsonDocument doc = JsonDocument.Parse(jsonResult);
+                var channelArray = doc.RootElement.GetProperty("result").GetProperty("channel");
+                if (channelArray.GetArrayLength() > 0)
+                {
+                    var channel = channelArray[0].GetString();
+                    Console.WriteLine($"OPA decided for the {channel} channel");
+                    channels = new() { channel };
+                }
+            }
+        }
+        catch (Exception ex) { Console.WriteLine("OPA decision failed:" + ex.ToString()); }
+
+        // In order not to lose a notification while in test mode of the information system, we send to the portal
+        // in the case no channels have been elected (in production, we could of course respect the preferences
+        // of the person the message is addressed to)
+        if (channels.Count() == 0)
+            channels.Add("portal");
+        return channels;
     }
 
     private HttpClient GetAuthenticatedClient(string name)

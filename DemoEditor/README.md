@@ -49,6 +49,7 @@ Even if everything is installed in the local machine, it makes it much easier to
 127.0.0.1 users
 127.0.0.1 edm
 127.0.0.1 mom
+127.0.0.1 brms
 ```
 
 ### Running the services
@@ -212,9 +213,23 @@ As indicated in the form, you will need to add `http://localhost:5678/rest/oauth
 
 Note that you may receive an error message upon activation of the n8n workflow, stating that the queue `ContractGenerated` does not exist. This may be due to the fact that the `contracts` service is not up and running. It has been passed with a `restart: on-failure` option to prevent this problem. Also, you may have to send a first request for contract by chosing a main author for a new book to make this queue visible. Since all is inside robust queues, nothing is lost anyway and, once all the setup is correct, you will find the messages that had not been treated before, but not lost.
 
+### Notification rules
+
+In order for the notification channels externalized decision engine to work, you will need to send the customized `NotificationPolicy.rego` file (to be found under the `resources` folder) to the Open Policy Agent, by using the Postman operation captured below:
+
+![](images/CustomizedNotificationPolicy.png)
+
 ### PowerBI reporting
 
-The file `DemoEditor.pbix` is provided in the `Resources` folder. You will have to adjust the authentication setup to access the data from your API endpoints.
+The file `DemoEditor.pbix` is provided in the `Resources` folder. You will have to adjust the authentication setup to access the data from your API endpoints if you have changed the default API keys for the data referential services. To do so, click on the `Data` / `Transform data` menu of PowerBI Desktop, which brings you to the PowerQuery window:
+
+![](images/PowerQuery.png)
+
+When there, click on `Advanced editor` and modify the key value in the text definition of the data query:
+
+![](images/ChangeAPIKey.png)
+
+You may have to repeat the same operation for the other data query, in our case the one called `Authors`.
 
 ## Running the application
 

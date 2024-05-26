@@ -1,0 +1,45 @@
+{
+    "origin": {
+        "phones": {
+            "work": "+1 6834 686 367",
+            "cell": "+1 6834 686 367"
+        },
+        "emails": {
+            "work": "editors@demoeditor.org"
+        }
+    },
+    "destination": {
+        "phones": {
+            "work": "+33 3 03 03 03 03",
+            "cell": "+33 6 06 06 06 06"
+        },
+        "emails": {
+            "work": "jp.gouigoux@job.com",
+            "home": "jp.gouigoux@home.fr"
+        },
+        "portal": {
+            "user": "jpgou",
+            "modes": {
+                "menu": {},
+                "bell": {}
+            }
+        },
+        "preferences": {
+            "workday": {
+                "high": [ "portal", "email", "sms" ],
+                "normal": [ "portal", "email" ],
+                "low": [ "portal" ]
+            },
+            "worknight": {
+                "high": [ "sms" ],
+                "normal": [ "email" ],
+                "low": [ ]
+            },
+            "dayoff": {
+                "high": [ "sms" ],
+                "normal": [ ],
+                "low": [ ]
+            }
+        }
+    }
+}
