@@ -17,7 +17,7 @@ This is of course not to say that I am against code improvements and I will be m
 **It is extremely important that you choose the right version if you want to use the present code to check how things presented in the book actually work.** Versions before 1.0 are there to show the progressive building of the information system; refer to them if you want to see simple code for a particular use. Version 1.0 is targeted as the version that correspond to the state of the system at the end of the book, with all parts working together; run this version if you want to have almost everything explained in the book running at once, but still without any sophistication. Versions following 1.0 will be added to make the code cleaner, add some options that have not been shown or discussed in the book, etc. Since they will be more sophisticated and configurable, they might become a bit more difficult to read and associate with the book, so only refer to them if you want to know about possible improvements from what the book concentrated on (which, again, is definitely not the technical preciseness, but the right alignment of the technology on the business).
 
 The sample application follows versions that hopefully make it easier to read the book chapters and associate them with different steps in the construction of the information system:
-- Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts.
+- Branch [v0.1](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.1/DemoEditor) corresponds to a **very simple form of the application**, with only the two APIs working and a basic portal, both **without any authentication mechanism** in order to ease use as a demo of the data referential services and overall comprehension of the concepts. This is the version you should use if you want to start as simple as possible and work your way up by yourself, following the steps indicating in the book to grow the sample information system.
 - Branch [v0.2](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.2/DemoEditor) adds the **authentication and authorization management** to the application (both frontend and backend) using a Keycloak IAM server. It also adds the batch import of data, using a Docker volume.
 - Branch [v0.3](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.3/DemoEditor) shows the implementation of a business process for the book creation. Rather than simply adding an entity, this process progressively enhances the structure of the book. This version also adds a webhook mechanism that updates the locally-duplicated attributes of the main author of a book when this author is modified.
 - Branch [v0.4](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.4/DemoEditor) adds two services. The first one is based on MailHog and sends invites to prospect authors for a new book. The second one is a custom Middle Office so that prospect users can indicate whether they accept of reject this invite.
@@ -25,6 +25,7 @@ The sample application follows versions that hopefully make it easier to read th
 - Branch [v0.6](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.6/DemoEditor) goes further in the business process choreography by adding a webhook callback when an author is chosen, which in turns generates a contract in the Electronic Document Management service. Since this exchange of contract needs some hard delivery robustness, we will introduce a Message-Oriented Middleware at this step. **Warning: the IAM service switches from port 8080 to 8088 in this version (see explanation below).**
 - Branch [v0.7](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.7/DemoEditor) introduces orchestration with n8n, using its editor to react to the creation of an authoring contract. A very simple reporting mechanism is also added in this version, in the form of a PowerBI Desktop report.
 - Branch [v0.8](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v0.8/DemoEditor) adds an Open Policy Agent service to externalize the business rules that determine which channel should be used for a notification from the context (identity of the destination, time and day, priority of the message, available channels, etc.).
+- Branch [v1.0](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/v1.0/DemoEditor) completes the information system with a monitoring feature, in order to check that everything works fine (as the complete system is quite complex and needs for you to follow carefully the installation manual below). This version also cleans up a few things in the code, add some content on the documentation to ease manipulation, while still avoiding any sophistication that would make it harder to read (for example, URLs of services are hardcoded). **This is the version you should use if you want to use the code to better understand what is explained in the chapters of the book.**
 - Branch [main](https://github.com/PacktPublishing/Enterprise-Architecture-with-.NET/tree/main/DemoEditor) is the most up-to-date version of the application, with **maximum content, including applications from all chapters** of the book (and thus highest level of complexity for a full installation) **but also additional content that is outside the scope of the book**. Use this version if you want to follow the future works of the author on this sample information system.
 
 ## Prerequisites
@@ -50,6 +51,7 @@ Even if everything is installed in the local machine, it makes it much easier to
 127.0.0.1 edm
 127.0.0.1 mom
 127.0.0.1 brms
+127.0.0.1 status
 ```
 
 ### Running the services
@@ -70,7 +72,13 @@ cd DemoEditor
 docker compose up -d
 ```
 
-### Defining IAM
+### Defining IAM (import mode)
+
+You can perform this step manually if you prefer (see next section), but an export is provided in the `resources` folder in order to make it easier. To import IAM settings, connect to the IAM console (http://iam:8088) with the credentials found in the Docker Compose file, then got to the `create realm` command in the top menu, browse the `demoeditor-realm-export.json` and import it.
+
+![](images/realmsetup.gif)
+
+### Defining IAM (manual mode)
 
 The Identity and Authorization Management server (Apache Keycloak, in our case) has been activated in the Docker Compose service for this version, and must be configured:
 1. Connect to http://iam:8088/admin/master/console/, using the credentials defined in the `docker-compose.yml` file.
@@ -86,10 +94,16 @@ The content should be like follows (the ports are the one inside Docker Compose,
 6. Click the `portal-dedicated` link in the `Client scopes` tab.
 7. Add the predefined mapper called `realm roles`.
 8. In this new mapper, activate the `Add to ID token` setting.
-10. Add a `francesca` user.
-11. Assign this account the `director` role.
 
-Note that an export of the realm settings is provided in the `resources` folder, to speed up the process (to import, browse the file when in the `create realm` command; you will need to re-create the users, though). In a following version (which means another branch of this repository), we will also harden a bit the IAM, with an appended database to store setting in a persistant manner.
+### Adding users in the IAM
+
+10. Add a `francesca` user.
+11. Give it credentials to be able to use it (you can suppress their temporary nature in order not to have to change the password at first connection).
+12. Assign this account the `director` role.
+
+![](images/usercreation.gif)
+
+Note that a production use would need to harden a bit the IAM, and in particular add a database to store settings in a persistant manner. With the current way of creating them, they will simply be stored in the volume automatically created by Docker Compose, and thus lost if you operate a `docker compose down` operation.
 
 ### Injecting some data
 
@@ -231,6 +245,20 @@ When there, click on `Advanced editor` and modify the key value in the text defi
 
 You may have to repeat the same operation for the other data query, in our case the one called `Authors`.
 
+### Setting up the monitoring system
+
+As a final step of this admittedly long installation procedure (but all those steps have been left for manual setup in order for you to get the grip of the whole system), we finally put the necessary parameters in the monitoring system that has been chosen (https://statping-ng.github.io/). This way, not only will the sample information system be under control, but this will help you check everything is OK before running the test scenario below.
+
+First, navigate to `http://status/8183` and create the connexion as required. Then, go to the `Settings` menu in the dashboard, and click on `Import` command. Browse to the `statping.json` file provided in the `resources` folder and import it to the system. The public dashboard (at the root URL of the service) should like this:
+
+![](images/Dashboard.png)
+
+If you are still in the private dashboard, the interface will be more like the following:
+
+![](images/PrivateDashboard.png)
+
+Whichever dashboard you use, all services should be green, at least in the mandatory and important services groups. The optional services group contains for example the Alfresco EDM and the GUI for the database. The application can work without these services, even if, of course, the generated contracts will in this case not be persisted anywhere.
+
 ## Running the application
 
 ### Accessing the GUI
@@ -267,7 +295,11 @@ And that's about it for this second version of the sample application. The evolu
 
 ### Starting the book creation process
 
-Still in the portal, under the `Books` menu, click on the `Start project for a new book`. This should bring you to a form where you will be able to progress step by step in a book creation:
+Still in the portal, under the `Books` menu, click on the `Start project for a new book`. This should bring you to a form where you will be able to progress step by step in a book creation. If you read the book, a GUI-based wizzard is one of the most common implementations of business processes. In this case, the BPM will be as follows:
+
+![](images/BookCreationBPMN.png)
+
+And the corresponding GUI is this form:
 
 ![](images/BookCreation.png)
 
