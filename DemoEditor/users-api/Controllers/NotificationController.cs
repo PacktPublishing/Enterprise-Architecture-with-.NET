@@ -37,6 +37,18 @@ public class NotificationController : ControllerBase
         Database = new MongoClient(ConnectionString).GetDatabase("users");
     }
 
+    [AllowAnonymous]
+    [HttpGet]
+    [Route("Status")]
+    public ActionResult Status()
+    {
+        // If the ping to the database works, the controller is considered as working fine
+        if (Database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000))
+            return Ok();
+        else
+            return StatusCode(500);
+    }
+
     [HttpGet]
     [Route("MyNewMessages")]
     public async Task<IActionResult> GetConnectedUserNotifs([FromQuery] bool includeAlreadyReadMessages = false)

@@ -25,7 +25,7 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.8
+    image: demoeditor/books-api:1.0
     build:
       context: .
       dockerfile: books-controller/Dockerfile
@@ -40,7 +40,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.8
+    image: demoeditor/authors-api:1.0
     build:
       context: .
       dockerfile: authors-controller/Dockerfile
@@ -50,7 +50,7 @@ services:
       - front
       - back
   mo:
-    image: demoeditor/middleoffice:0.8
+    image: demoeditor/middleoffice:1.0
     build:
       context: .
       dockerfile: middleoffice/Dockerfile
@@ -60,7 +60,7 @@ services:
       - front
       - back
   users:
-    image: demoeditor/users-api:0.8
+    image: demoeditor/users-api:1.0
     build:
       context: .
       dockerfile: users-api/Dockerfile
@@ -70,7 +70,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.8
+    image: demoeditor/portal-gui:1.0
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
@@ -79,7 +79,7 @@ services:
     networks:
       - front
   contracts:
-    image: demoeditor/contracts:0.8
+    image: demoeditor/contracts:1.0
     build:
       context: ./contracts
       dockerfile: Dockerfile
@@ -129,6 +129,13 @@ services:
       - 8181:8181
     command: ["run", "--server", "--addr", ":8181"]
     networks:
+      - back
+  monitoring:
+    image: adamboutcher/statping-ng
+    ports:
+      - 8183:8080
+    networks:
+      - front
       - back
 networks:
   front:
