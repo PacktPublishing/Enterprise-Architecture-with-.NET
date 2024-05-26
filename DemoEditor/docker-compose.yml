@@ -25,7 +25,7 @@ services:
       - front
       - back
   books:
-    image: demoeditor/books-api:0.7
+    image: demoeditor/books-api:0.8
     build:
       context: .
       dockerfile: books-controller/Dockerfile
@@ -40,7 +40,7 @@ services:
     volumes:
       - import:/tmp/data
   authors:
-    image: demoeditor/authors-api:0.7
+    image: demoeditor/authors-api:0.8
     build:
       context: .
       dockerfile: authors-controller/Dockerfile
@@ -50,7 +50,7 @@ services:
       - front
       - back
   mo:
-    image: demoeditor/middleoffice:0.7
+    image: demoeditor/middleoffice:0.8
     build:
       context: .
       dockerfile: middleoffice/Dockerfile
@@ -60,7 +60,7 @@ services:
       - front
       - back
   users:
-    image: demoeditor/users-api:0.7
+    image: demoeditor/users-api:0.8
     build:
       context: .
       dockerfile: users-api/Dockerfile
@@ -70,7 +70,7 @@ services:
       - front
       - back
   portal:
-    image: demoeditor/portal-gui:0.7
+    image: demoeditor/portal-gui:0.8
     build:
       context: ./portal-gui
       dockerfile: Dockerfile
@@ -79,7 +79,7 @@ services:
     networks:
       - front
   contracts:
-    image: demoeditor/contracts:0.7
+    image: demoeditor/contracts:0.8
     build:
       context: ./contracts
       dockerfile: Dockerfile
