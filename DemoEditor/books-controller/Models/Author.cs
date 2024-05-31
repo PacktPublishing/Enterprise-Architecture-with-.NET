@@ -9,7 +9,7 @@ namespace books_controller.Models;
 
 // This class corresponds to an author as cached by the book referential
 // It may not contain all the data in the complete author model
-public class Author : ICloneable
+public class Author
 {
     [BsonId()]
     [BsonRepresentation(BsonType.ObjectId)]

@@ -399,3 +399,6 @@ Here is a non-exhaustive list of tasks and ideas:
 - Once more data and attributes are added, improve on the PowerBI report to generate something with more business value
 - Use secrets instead of hard-coded keys (only if it does not harm the readability of the exercise)
 - Test replacement of RabbitMQ by a Redis server
+- Correct some misnamed namespaces
+
+After analysing the code with NDepend (see https://blog.gouigoux.com/analyse-ndepend-du-systeme-dinformation-demoeditor.html; article in French, though), it becomes obvious the priority `TODO` is to unify the models class definitions, including the petals class definitions in the same file as the mother business entity.

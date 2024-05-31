@@ -31,7 +31,7 @@ public class AuthorsCacheController : ControllerBase
     public async Task<IActionResult> Receive([FromBody] AuthorCache author)
     {
         if (author is null) return BadRequest();
-        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == author.EntityId, author, new UpdateOptions { IsUpsert = true });
+        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == author.EntityId, author, new ReplaceOptions { IsUpsert = true });
         return new OkResult();
     }
 }

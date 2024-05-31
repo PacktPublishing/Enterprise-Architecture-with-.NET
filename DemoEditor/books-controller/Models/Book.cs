@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace books_controller.Models;
 
-public class Book : ICloneable
+public class Book
 {
     [BsonId()]
     [BsonRepresentation(BsonType.ObjectId)]

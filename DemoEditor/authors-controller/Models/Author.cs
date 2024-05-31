@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace authors_controller.Models;
 
-public class Author : ICloneable
+public class Author
 {
     [BsonId()]
     [BsonRepresentation(BsonType.ObjectId)]

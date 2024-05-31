@@ -237,7 +237,7 @@ public class BooksController : ControllerBase
 
                             // Then, the author is used in the expand but also updated in cache                            
                             book.Editing.mainAuthor.FullEntity = mainAuthor;
-                            await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == mainAuthor.EntityId, new AuthorCache(mainAuthor), new UpdateOptions { IsUpsert = true });
+                            await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == mainAuthor.EntityId, new AuthorCache(mainAuthor), new ReplaceOptions { IsUpsert = true });
                         }
                     }
                     catch
@@ -381,7 +381,7 @@ public class BooksController : ControllerBase
                     if (author != null)
                     {
                         authorCache = new AuthorCache(author);
-                        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache, new UpdateOptions { IsUpsert = true });
+                        await Database.GetCollection<AuthorCache>("authors-bestsofar-cache").ReplaceOneAsync<AuthorCache>(item => item.EntityId == authorEntityId, authorCache, new ReplaceOptions { IsUpsert = true });
                     }
                 }
                 catch {}
