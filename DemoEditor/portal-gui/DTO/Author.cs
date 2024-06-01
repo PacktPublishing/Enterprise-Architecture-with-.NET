@@ -13,10 +13,10 @@ public class Author
     {
         get
         {
-            if (Contacts == null) Contacts = new ContactsPetal();
-            if (Contacts.Addresses == null) Contacts.Addresses = new List<Address>();
+            Contacts ??= new ContactsPetal();
+            Contacts.Addresses ??= new List<Address>();
             if (Contacts.Addresses.Count() == 0) Contacts.Addresses.Add(new Address() { Country = new() });
-            if (Contacts.Addresses[0].Country == null) Contacts.Addresses[0].Country = new();
+            Contacts.Addresses[0].Country ??= new();
             return Contacts.Addresses.First();
         }
     }
